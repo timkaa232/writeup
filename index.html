@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WriteUp — Прокачай письменный английский</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Шрифты и Supabase -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ========== ГЛАВНАЯ СТРАНИЦА ========== -->
+<div id="page-index" class="container" style="display: flex; flex-direction: column; min-height: 100vh;">
+    <nav class="navbar">
+        <div class="logo" onclick="navigateTo('index')">WriteUp</div>
+        <div class="nav-links">
+            <a href="#features">Возможности</a>
+            <a href="#how">Как работает</a>
+            <a href="#topics">Темы</a>
+            <a href="#" onclick="navigateTo('login')" class="btn btn-outline btn-sm">Войти</a>
+            <a href="#" onclick="navigateTo('register')" class="btn btn-primary btn-sm">Регистрация</a>
+            <span class="theme-toggle" onclick="toggleTheme()" aria-label="Сменить тему">🌓</span>
+        </div>
+    </nav>
+
+    <main style="flex: 1;">
+        <section class="hero">
+            <h1>Пишите на английском<br><span>как носитель</span></h1>
+            <p>Платформа для прокачки письменного английского. 1000+ тем, профессиональные критерии оценки, детальная статистика и ваш личный словарь ошибок.</p>
+            <div class="hero-buttons">
+                <a href="#" onclick="navigateTo('register')" class="btn btn-primary btn-lg">Начать бесплатно →</a>
+                <a href="#how" class="btn btn-outline btn-lg">Узнать больше</a>
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <h2 class="section-title">Возможности платформы</h2>
+            <p class="section-subtitle">Всё, что нужно для уверенного письма на английском</p>
+            <div class="grid grid-3">
+                <div class="card"><div class="card-icon">📝</div><h3>Тренажёр письма</h3><p>Пишите тексты на скорость, проверяйте по 20 критериям, отслеживайте прогресс.</p></div>
+                <div class="card"><div class="card-icon">📚</div><h3>Библиотека тем</h3><p>6 целей, 1800+ тем для тренировки.</p></div>
+                <div class="card"><div class="card-icon">✅</div><h3>Умные чек-листы</h3><p>20 критериев IELTS с автоматическим анализом и пояснениями.</p></div>
+                <div class="card"><div class="card-icon">📖</div><h3>Словарь ошибок</h3><p>Самообучающийся словарь на основе ваших текстов. Видит ваши слабые места.</p></div>
+                <div class="card"><div class="card-icon">🎯</div><h3>Тест на уровень</h3><p>Точный тест из 50 вопросов (A1–C2).</p></div>
+                <div class="card"><div class="card-icon">📊</div><h3>Статистика</h3><p>Детальная аналитика: слова, тексты, streak, прогресс.</p></div>
+            </div>
+        </section>
+
+        <section id="how" class="section">
+            <h2 class="section-title">Как это работает</h2>
+            <div class="grid grid-3">
+                <div class="card text-center"><div class="step-number">1</div><h3>Выберите цель и тему</h3><p>6 целей, 300+ тем на каждую.</p></div>
+                <div class="card text-center"><div class="step-number">2</div><h3>Напишите текст</h3><p>В удобном редакторе. Можете включить таймер.</p></div>
+                <div class="card text-center"><div class="step-number">3</div><h3>Получите анализ</h3><p>Автоматическая проверка по 20 критериям и рекомендации.</p></div>
+            </div>
+        </section>
+
+        <section id="topics" class="section">
+            <h2 class="section-title">Примеры тем</h2>
+            <div class="grid grid-3">
+                <div class="card"><h3>💼 Деловая переписка</h3><ul><li>Email о переносе сроков</li><li>Запрос коммерческого предложения</li><li>Follow-up после конференции</li></ul></div>
+                <div class="card"><h3>🎓 Эссе IELTS</h3><ul><li>Влияние соцсетей на молодёжь</li><li>За и против удаленной работы</li><li>Глобальное потепление</li></ul></div>
+                <div class="card"><h3>📱 Социальные сети</h3><ul><li>Пост о повышении в LinkedIn</li><li>Описание путешествия в Instagram</li><li>Дискуссия в Twitter</li></ul></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer" id="footer">
+        <div class="container footer-content">
+            <div><h4>WriteUp</h4><p>Прокачка письменного английского.</p></div>
+            <div><h4>Контакты</h4><p>writeup@support.com</p></div>
+            <div><h4>Навигация</h4><a href="#" onclick="navigateTo('index')">Главная</a><br><a href="#" onclick="navigateTo('login')">Вход</a></div>
+        </div>
+    </footer>
+</div>
+
+<!-- ========== СТРАНИЦА ВХОДА ========== -->
+<div id="page-login" class="auth-page" style="display: none;">
+    <div class="auth-container">
+        <div class="auth-left"><h2>С возвращением!</h2><p>Продолжайте прокачивать письменный английский.</p></div>
+        <div class="auth-right"><h2>Вход</h2>
+            <form id="login-form">
+                <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="your@email.com" required></div>
+                <div class="form-group"><label>Пароль</label><input type="password" id="login-password" placeholder="••••••" required></div>
+                <p id="login-error" class="error-message"></p>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Войти</button>
+            </form>
+            <p style="text-align:center;margin-top:16px;">Нет аккаунта? <a href="#" onclick="navigateTo('register')">Регистрация</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== СТРАНИЦА РЕГИСТРАЦИИ ========== -->
+<div id="page-register" class="auth-page" style="display: none;">
+    <div class="auth-container">
+        <div class="auth-left"><h2>Добро пожаловать!</h2><p>Создайте аккаунт и начните писать.</p></div>
+        <div class="auth-right"><h2>Регистрация</h2>
+            <form id="register-form">
+                <div class="form-row"><div class="form-group"><label>Имя *</label><input type="text" id="reg-first-name" required></div><div class="form-group"><label>Фамилия</label><input type="text" id="reg-last-name"></div></div>
+                <div class="form-group"><label>Email *</label><input type="email" id="reg-email" required></div>
+                <div class="form-group"><label>Пароль *</label><input type="password" id="reg-password" required minlength="6"></div>
+                <div class="form-row"><div class="form-group"><label>Пол</label><select id="reg-gender"><option value="">Не указан</option><option value="male">Мужской</option><option value="female">Женский</option></select></div><div class="form-group"><label>Год рождения</label><input type="number" id="reg-birth-year" placeholder="2000"></div></div>
+                <div class="form-group"><label>Уровень английского</label><select id="reg-english-level"><option value="">Выберите</option><option value="A1">A1 - Начинающий</option><option value="A2">A2 - Элементарный</option><option value="B1">B1 - Средний</option><option value="B2">B2 - Выше среднего</option><option value="C1">C1 - Продвинутый</option><option value="C2">C2 - Владение в совершенстве</option></select></div>
+                <div class="form-group"><label>Цель обучения</label><select id="reg-goal"><option value="business">Деловая переписка</option><option value="ielts_academic">IELTS Academic</option><option value="ielts_general">IELTS General</option><option value="social">Социальные сети</option><option value="creative">Творческое письмо</option><option value="daily">Повседневное общение</option></select></div>
+                <div class="checkbox-group"><input type="checkbox" id="reg-agreement" required><label>Принимаю <a href="#" id="show-agreement-btn">пользовательское соглашение</a></label></div>
+                <p id="reg-error" class="error-message"></p>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Зарегистрироваться</button>
+            </form>
+            <p style="text-align:center;margin-top:16px;">Уже есть аккаунт? <a href="#" onclick="navigateTo('login')">Войти</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно соглашения -->
+<div id="agreement-modal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" id="close-agreement-btn">×</span>
+        <h2>Пользовательское соглашение</h2>
+        <p>Ваши данные используются исключительно для целей обучения и улучшения качества работы платформы. Мы не передаем их третьим лицам. Продолжая использовать платформу, вы соглашаетесь на хранение и обработку ваших текстов и статистики.</p>
+        <button class="btn btn-primary" id="accept-agreement-btn">Принять</button>
+    </div>
+</div>
+
+<!-- ========== ДАШБОРД ========== -->
+<div id="page-dashboard" class="dashboard-container" style="display: none;">
+    <header class="dashboard-header">
+        <div class="logo" onclick="showSection('trainer')">WriteUp</div>
+        <nav class="dashboard-nav">
+            <a href="#" onclick="showSection('trainer')" class="btn btn-sm btn-secondary active-nav" data-section="trainer">📝 Тренажёр</a>
+            <a href="#" onclick="showSection('checklist')" class="btn btn-sm btn-secondary" data-section="checklist">✅ Чек-листы</a>
+            <a href="#" onclick="showSection('dictionary')" class="btn btn-sm btn-secondary" data-section="dictionary">📖 Словарь ошибок</a>
+            <a href="#" onclick="showSection('levels')" class="btn btn-sm btn-secondary" data-section="levels">🎯 Тест</a>
+            <a href="#" onclick="showSection('profile')" class="btn btn-sm btn-secondary" data-section="profile">👤 Профиль</a>
+            <span class="theme-toggle" onclick="toggleTheme()">🌓</span>
+            <button id="logout-btn" class="btn btn-outline btn-sm">Выйти</button>
+        </nav>
+    </header>
+
+    <!-- Тренажёр -->
+    <div id="section-trainer" class="dashboard-section active-section">
+        <div class="grid grid-2">
+            <div class="writing-panel">
+                <div class="goal-selector">
+                    <select id="goal-select">
+                        <option value="business">💼 Деловая переписка</option>
+                        <option value="ielts_academic">🎓 IELTS Academic</option>
+                        <option value="ielts_general">📝 IELTS General</option>
+                        <option value="social">📱 Социальные сети</option>
+                        <option value="creative">✨ Творческое письмо</option>
+                        <option value="daily">🗣️ Повседневное общение</option>
+                    </select>
+                    <button id="generate-topic-btn" class="btn btn-secondary">🎲 Сгенерировать тему</button>
+                </div>
+                <div class="topic-box">💡 <strong>Тема:</strong> <span id="topic-text">Нажмите "Сгенерировать", чтобы начать</span></div>
+                <textarea id="essay-input" placeholder="Начните писать здесь..." rows="14"></textarea>
+                <div class="action-buttons">
+                    <button id="sprint-btn" class="btn btn-secondary">⏱ Спринт 5 мин</button>
+                    <span id="word-count" class="word-counter">0 слов</span>
+                    <button id="save-text-btn" class="btn btn-primary">💾 Сохранить и проанализировать</button>
+                </div>
+                <div id="timer-display" class="timer"></div>
+            </div>
+            <div class="feedback-panel">
+                <h3>📊 Статистика текста</h3>
+                <div id="text-stats" class="placeholder-box">Напишите и сохраните текст для анализа.</div>
+                <div style="margin-top:20px;">
+                    <h4>📋 Быстрый чек-лист</h4>
+                    <p class="hint">Нажмите на пункт, чтобы отметить. <br>Система проверит автоматически после сохранения.</p>
+                    <ul id="quick-checklist" class="checklist">
+    <li data-criterion="topic_relevance">Соответствие теме</li>
+    <li data-criterion="introduction">Введение</li>
+    <li data-criterion="conclusion">Заключение</li>
+    <li data-criterion="linking_words">Слова-связки</li>
+    <li data-criterion="grammar_range">Грамматический диапазон</li>
+    <li data-criterion="vocabulary">Лексика и словарный запас</li>
+    <li data-criterion="structure">Структура и логика</li>
+    <li data-criterion="style">Стиль и оформление</li>
+</ul>
+</ul>
+</ul>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="history-section"><h3>📋 Ваша история</h3><div id="history-list"><p class="placeholder-box">Загрузка...</p></div></div>
+    </div>
+
+    <!-- Чек-листы -->
+    <div id="section-checklist" class="dashboard-section"><h2 class="section-title">✅ Полный чек-лист (20 критериев)</h2><p class="section-subtitle">Система автоматически проанализирует ваш последний текст.</p><div id="detailed-checklist" class="grid grid-2"><p class="placeholder-box">Сохраните текст в тренажёре для анализа.</p></div></div>
+
+    <!-- Словарь ошибок -->
+    <div id="section-dictionary" class="dashboard-section"><h2 class="section-title">📖 Ваш словарь ошибок</h2><p class="section-subtitle">Ошибки, которые встречаются у вас чаще всего.</p><div id="personal-dictionary" class="grid grid-3"><p class="placeholder-box">Накопите тексты для анализа.</p></div></div>
+
+    <!-- Тест на уровень -->
+    <div id="section-levels" class="dashboard-section"><h2 class="section-title">🎯 Тест на определение уровня</h2><div id="level-test-container" class="card"><p>Готовы начать? Тест из 50 вопросов определит ваш уровень точнее.</p><button id="start-test-btn" class="btn btn-primary">Начать тест</button></div></div>
+
+    <!-- Профиль -->
+    <div id="section-profile" class="dashboard-section"><h2 class="section-title">👤 Ваш профиль</h2><div class="grid grid-2"><div class="card"><h3>Личные данные</h3><div id="profile-info"><p class="placeholder-box">Загрузка...</p></div></div><div class="card"><h3>📊 Статистика</h3><div class="stat-grid" id="profile-stats"></div></div></div></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
