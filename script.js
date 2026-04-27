@@ -1996,17 +1996,41 @@ function renderDetailedChecklist() {
     else if (overallPercentage >= 40) overallLevel = 'Ниже среднего (Band 4.5-5.0)';
     else overallLevel = 'Требует улучшения (Band <4.5)';
     
+        // Считаем отдельно по категориям
+    let catScores = '';
+    criteria.forEach(cat => {
+        let catPassed = 0;
+        let catTotal = cat.items.length;
+        cat.items.forEach(item => { if (item.check()) catPassed++; });
+        const catPct = Math.round((catPassed / catTotal) * 100);
+        const catColor = catPct >= 80 ? 'var(--success)' : catPct >= 50 ? 'var(--warning)' : 'var(--danger)';
+        catScores += `
+            <div style="text-align:center;flex:1;min-width:100px;">
+                <div style="font-size:24px;font-weight:700;color:${catColor};">${catPct}%</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${cat.cat.split(' ')[0]}</div>
+            </div>`;
+    });
+
     html = `
-        <div style="text-align:center;margin-bottom:24px;padding:20px;background:var(--primary-light);border-radius:12px;">
-            <h3 style="margin:0;">📊 Общий результат: ${overallPercentage}%</h3>
-            <p style="margin:4px 0;font-size:16px;font-weight:600;">${overallLevel}</p>
-            <p style="margin:0;font-size:13px;color:var(--text-secondary);">${totalPassed} из ${totalItems} критериев выполнено</p>
+        <div style="background:var(--bg-card);border-radius:var(--radius);padding:24px;margin-bottom:24px;border:1px solid var(--border);box-shadow:var(--shadow-sm);">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+                <div>
+                    <h3 style="margin:0;">📊 Общий результат</h3>
+                    <p style="margin:2px 0;font-size:28px;font-weight:800;color:var(--primary);">${overallPercentage}%</p>
+                    <p style="margin:0;font-size:14px;font-weight:600;">${overallLevel}</p>
+                    <p style="margin:0;font-size:12px;color:var(--text-muted);">${totalPassed} из ${totalItems} критериев</p>
+                </div>
+                <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+                    ${catScores}
+                </div>
+            </div>
+            <!-- Прогресс-бар -->
+            <div style="margin-top:16px;background:var(--bg);border-radius:50px;height:8px;overflow:hidden;">
+                <div style="height:100%;width:${overallPercentage}%;background:var(--gradient);border-radius:50px;transition:width 0.5s ease;"></div>
+            </div>
         </div>
         <div class="grid grid-2">${html}</div>
     `;
-    
-    container.innerHTML = html;
-}
 // ========== СЛОВАРЬ ОШИБОК (САМООБУЧАЮЩИЙСЯ) ==========
 function renderPersonalDictionary() {
     const container = document.getElementById('personal-dictionary');
