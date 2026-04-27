@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WriteUp — Прокачай письменный английский</title>
     <link rel="stylesheet" href="style-main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>">
     <!-- Шрифты и Supabase -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -29,6 +31,12 @@
 
     <main style="flex: 1;">
         <section class="hero">
+            <div class="hero-stats" style="display:flex;gap:32px;justify-content:center;margin-top:40px;color:var(--text-secondary);font-size:14px;">
+    <span>📝 <strong>1800+</strong> тем</span>
+    <span>✅ <strong>25</strong> критериев</span>
+    <span>🎯 <strong>6</strong> целей</span>
+    <span>📊 <strong>50</strong> вопросов теста</span>
+</div>
             <h1>Пишите на английском<br><span>как носитель</span></h1>
             <p>Платформа для прокачки письменного английского. 1000+ тем, профессиональные критерии оценки, детальная статистика и ваш личный словарь ошибок.</p>
             <div class="hero-buttons">
@@ -51,22 +59,47 @@
         </section>
 
         <section id="how" class="section">
-            <h2 class="section-title">Как это работает</h2>
-            <div class="grid grid-3">
-                <div class="card text-center"><div class="step-number">1</div><h3>Выберите цель и тему</h3><p>6 целей, 300+ тем на каждую.</p></div>
-                <div class="card text-center"><div class="step-number">2</div><h3>Напишите текст</h3><p>В удобном редакторе. Можете включить таймер.</p></div>
-                <div class="card text-center"><div class="step-number">3</div><h3>Получите анализ</h3><p>Автоматическая проверка по 20 критериям и рекомендации.</p></div>
-            </div>
-        </section>
+    <h2 class="section-title">Как это работает</h2>
+    <p class="section-subtitle">Три простых шага к уверенному письму на английском</p>
+    <div class="grid grid-3">
+        <div class="card text-center">
+            <div class="step-number">1</div>
+            <h3>Выберите цель и тему</h3>
+            <p>6 направлений обучения: деловая переписка, IELTS Academic, IELTS General, соцсети, творческое письмо и повседневное общение. Более 300 уникальных тем на каждое направление — система подберёт задачу под ваш уровень и интересы.</p>
+        </div>
+        <div class="card text-center">
+            <div class="step-number">2</div>
+            <h3>Напишите текст</h3>
+            <p>Удобный редактор с подсчётом слов и символов. Хотите проверить скорость? Включите спринт-таймер на 5 минут — он поможет писать быстрее и не отвлекаться. Текст автоматически сохраняется в вашу историю.</p>
+        </div>
+        <div class="card text-center">
+            <div class="step-number">3</div>
+            <h3>Получите анализ</h3>
+            <p>Система проверит текст по 25 критериям IELTS: структура, грамматика, лексика, стиль и соответствие теме. Вы увидите подробный отчёт с пояснениями: что хорошо, а что нужно улучшить. Ваши ошибки соберутся в личный словарь.</p>
+        </div>
+    </div>
+</section>
 
         <section id="topics" class="section">
-            <h2 class="section-title">Примеры тем</h2>
-            <div class="grid grid-3">
-                <div class="card"><h3>💼 Деловая переписка</h3><ul><li>Email о переносе сроков</li><li>Запрос коммерческого предложения</li><li>Follow-up после конференции</li></ul></div>
-                <div class="card"><h3>🎓 Эссе IELTS</h3><ul><li>Влияние соцсетей на молодёжь</li><li>За и против удаленной работы</li><li>Глобальное потепление</li></ul></div>
-                <div class="card"><h3>📱 Социальные сети</h3><ul><li>Пост о повышении в LinkedIn</li><li>Описание путешествия в Instagram</li><li>Дискуссия в Twitter</li></ul></div>
-            </div>
-        </section>
+    <h2 class="section-title">Примеры тем</h2>
+    <div class="grid grid-3">
+        <div class="card"><h3>💼 Деловая переписка</h3><ul><li>Email о переносе сроков</li><li>Запрос коммерческого предложения</li><li>Follow-up после конференции</li></ul></div>
+        <div class="card"><h3>🎓 IELTS Academic</h3><ul><li>Влияние соцсетей на молодёжь</li><li>За и против удаленной работы</li><li>Глобальное потепление</li></ul></div>
+        <div class="card"><h3>📝 IELTS General</h3><ul><li>Письмо другу о празднике</li><li>Жалоба в магазин</li><li>Письмо арендодателю</li></ul></div>
+        <div class="card"><h3>📱 Социальные сети</h3><ul><li>Пост о повышении в LinkedIn</li><li>Описание путешествия в Instagram</li><li>Дискуссия в Twitter</li></ul></div>
+        <div class="card"><h3>✨ Творческое письмо</h3><ul><li>Описание таинственной двери</li><li>Короткий рассказ</li><li>Диалог незнакомцев</li></ul></div>
+        <div class="card"><h3>🗣️ Повседневное общение</h3><ul><li>Идеальные выходные</li><li>Рецепт любимого блюда</li><li>Перенос встречи с другом</li></ul></div>
+    </div>
+</section>
+    <section class="section">
+    <h2 class="section-title">Кому подойдёт WriteUp</h2>
+    <div class="grid grid-3">
+        <div class="card text-center"><div class="card-icon">🎓</div><h3>Студентам</h3><p>Готовьтесь к IELTS, TOEFL и экзаменам. Тренируйте эссе и письма.</p></div>
+        <div class="card text-center"><div class="card-icon">💼</div><h3>Профессионалам</h3><p>Пишите деловые письма, email и отчёты на английском без ошибок.</p></div>
+        <div class="card text-center"><div class="card-icon">🌍</div><h3>Путешественникам</h3><p>Учитесь писать посты, бронировать жильё и общаться в соцсетях.</p></div>
+    </div>
+</section>
+
     </main>
 
     <footer class="footer" id="footer">
@@ -74,6 +107,11 @@
             <div><h4>WriteUp</h4><p>Прокачка письменного английского.</p></div>
             <div><h4>Контакты</h4><p>writeup@support.com</p></div>
             <div><h4>Навигация</h4><a href="#" onclick="navigateTo('index')">Главная</a><br><a href="#" onclick="navigateTo('login')">Вход</a></div>
+            <div>
+    <h4>О платформе</h4>
+    <p style="font-size:13px;color:var(--text-muted);">Учебный проект для прокачки письменного английского. Создан с ❤️ для изучающих язык.</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">© 2026 WriteUp</p>
+</div>
         </div>
     </footer>
 </div>
@@ -135,6 +173,7 @@
             <a href="#" onclick="showSection('dictionary')" class="btn btn-sm btn-secondary" data-section="dictionary">📖 Словарь ошибок</a>
             <a href="#" onclick="showSection('levels')" class="btn btn-sm btn-secondary" data-section="levels">🎯 Тест</a>
             <a href="#" onclick="showSection('profile')" class="btn btn-sm btn-secondary" data-section="profile">👤 Профиль</a>
+            
             <span class="theme-toggle" onclick="toggleTheme()">🌓</span>
             <button id="logout-btn" class="btn btn-outline btn-sm">Выйти</button>
         </nav>
@@ -156,6 +195,7 @@
                     <button id="generate-topic-btn" class="btn btn-secondary">🎲 Сгенерировать тему</button>
                 </div>
                 <div class="topic-box">💡 <strong>Тема:</strong> <span id="topic-text">Нажмите "Сгенерировать", чтобы начать</span></div>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">✍️ Пишите на английском. Минимум 50 слов для полного анализа.</p>
                 <textarea id="essay-input" placeholder="Начните писать здесь..." rows="14"></textarea>
                 <div class="action-buttons">
                     <button id="sprint-btn" class="btn btn-secondary">⏱ Спринт 5 мин</button>
@@ -199,7 +239,14 @@
     <div id="section-levels" class="dashboard-section"><h2 class="section-title">🎯 Тест на определение уровня</h2><div id="level-test-container" class="card"><p>Готовы начать? Тест из 50 вопросов определит ваш уровень точнее.</p><button id="start-test-btn" class="btn btn-primary">Начать тест</button></div></div>
 
     <!-- Профиль -->
-    <div id="section-profile" class="dashboard-section"><h2 class="section-title">👤 Ваш профиль</h2><div class="grid grid-2"><div class="card"><h3>Личные данные</h3><div id="profile-info"><p class="placeholder-box">Загрузка...</p></div></div><div class="card"><h3>📊 Статистика</h3><div class="stat-grid" id="profile-stats"></div></div></div></div>
+    <div id="section-profile" class="dashboard-section">
+    <h2 class="section-title">👤 Ваш профиль</h2>
+    <div class="grid grid-2">
+        <div class="card"><h3>Личные данные</h3><div id="profile-info"><p class="placeholder-box">Загрузка...</p></div></div>
+        <div class="card"><h3>📊 Статистика</h3><div class="stat-grid" id="profile-stats"></div>
+            <button class="btn btn-outline btn-sm" onclick="alert('Ссылка скопирована: ' + window.location.href)" style="margin-top:12px;">🔗 Поделиться профилем</button>
+        </div>
+    </div>
 </div>
 
 <script src="script.js"></script>

@@ -2,11 +2,11 @@
 :root {
     --bg: #f5f0eb; /* Теплый слоновый оттенок */
     --bg-card: #f5f0eb;
-    --bg-header: #f5f0eb;
+    --bg-header: #ea7691;
     --text: #2d1e1e;
     --text-secondary: #6b5b5b;
     --text-muted: #a09090;
-    --border: #f5f0eb;
+    --border: #2d1e1e;
     --primary: #d4889a;
     --primary-hover: #b87080;
     --primary-light: rgba(212, 136, 154, 0.12);
@@ -26,7 +26,7 @@
 [data-theme="dark"] {
     --bg: #2a1f1f;
     --bg-card: #3d2a2a;
-    --bg-header: rgba(42, 31, 31, 0.9);
+    --bg-header: #2a1f1f;
     --text: #f5f0eb;
     --text-secondary: #c0b0b0;
     --text-muted: #a09090;
@@ -108,7 +108,7 @@ a:hover { color: var(--primary-hover); }
 .section-subtitle { text-align: center; color: var(--text-secondary); font-size: 18px; margin-bottom: 48px; }
 .grid { display: grid; gap: 24px; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-3 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 .text-center { text-align: center; }
 
 /* ========== ФОРМЫ ========== */
