@@ -115,7 +115,6 @@ function showSection(name) {
     if (navBtn) navBtn.classList.add('active-nav');
     
     if (name === 'history') renderHistoryFull();
-    if (name === 'checklist') renderDetailedChecklist();
     if (name === 'dictionary') renderPersonalDictionary();
     if (name === 'levels') renderLevelTest();
     if (name === 'profile') renderProfile();
@@ -1805,6 +1804,100 @@ function autoAnalyzeChecklist(text) {
         });
     }
 }
+
+
+// ========== ИСТОРИЯ (ПОЛНАЯ) ==========
+async function renderHistoryFull() {
+    if (!currentUser) return;
+    const container = document.getElementById('history-full-list');
+    container.innerHTML = '<p class="placeholder-box">Загрузка...</p>';
+    
+    const { data, error } = await window.supabaseClient.from('essays')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+    
+    if (error || !data || data.length === 0) {
+        container.innerHTML = '<p class="placeholder-box">Пока нет сохранённых текстов.</p>';
+        return;
+    }
+    
+    window.historyData = data;
+    let html = '';
+    data.forEach((e, index) => {
+        const date = new Date(e.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'short', year: 'numeric' });
+        const goalNames = { business: 'Деловая переписка', ielts_academic: 'IELTS Academic', ielts_general: 'IELTS General', social: 'Соцсети', creative: 'Творческое', daily: 'Повседневное' };
+        const goalName = goalNames[e.goal] || e.goal;
+        html += `
+            <div class="history-card" onclick="openHistoryDetail('${e.id}', ${index})">
+                <div class="history-card-left">
+                    <strong>${e.topic.substring(0, 60)}${e.topic.length > 60 ? '...' : ''}</strong>
+                    <span>${date} · ${goalName}</span>
+                </div>
+                <div class="history-card-right">
+                    <div class="word-count">${e.word_count}</div>
+                    <div>слов</div>
+                </div>
+            </div>`;
+    });
+    container.innerHTML = html;
+}
+
+async function openHistoryDetail(essayId, index) {
+    const essay = window.historyData ? window.historyData[index] : null;
+    if (!essay) return;
+    
+    const detailPanel = document.getElementById('history-detail-panel');
+    const lowerText = essay.content.toLowerCase();
+    
+    const errorPatterns = [
+        { regex: /\bI am (doctor|teacher|engineer|student)\b/gi, correct: 'I am a $1' },
+        { regex: /\barrived to\b/gi, correct: 'arrived in/at' },
+        { regex: /\bdiscuss about\b/gi, correct: 'discuss' },
+        { regex: /\bgo to (shop|gym|hospital)\b/gi, correct: 'go to the $1' },
+    ];
+    
+    let highlightedText = essay.content;
+    errorPatterns.forEach(p => {
+        highlightedText = highlightedText.replace(p.regex, match => `<span class="error-underline" title="Исправление: ${p.correct}">${match}</span>`);
+    });
+    
+    const wordCount = essay.word_count;
+    const hasIntro = ['introduction', 'in this essay', 'nowadays', 'recently'].some(p => lowerText.includes(p)) || wordCount > 30;
+    const hasConc = ['in conclusion', 'to sum up', 'overall'].some(p => lowerText.includes(p));
+    const hasLinkers = ['however', 'therefore', 'moreover'].filter(w => lowerText.includes(w)).length >= 1;
+    const hasPassive = /\b(is|are|was|were)\s+\w+(ed|en)\b/i.test(lowerText);
+    
+    detailPanel.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="margin:0;font-size:18px;">${essay.topic.substring(0, 70)}</h3>
+            <span style="cursor:pointer;font-size:24px;color:var(--text-muted);" onclick="closeHistoryDetail()">&times;</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+            ${new Date(essay.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })} · ${essay.word_count} слов
+        </p>
+        <div class="detail-text">${highlightedText}</div>
+        <h4 style="margin-bottom:12px;">Быстрый анализ</h4>
+        <ul class="checklist static">
+            <li class="${hasIntro ? 'checked' : 'failed'}">${hasIntro ? '✅' : '❌'} Введение</li>
+            <li class="${hasConc ? 'checked' : 'failed'}">${hasConc ? '✅' : '❌'} Заключение</li>
+            <li class="${hasLinkers ? 'checked' : 'failed'}">${hasLinkers ? '✅' : '❌'} Слова-связки</li>
+            <li class="${hasPassive ? 'checked' : 'failed'}">${hasPassive ? '✅' : '❌'} Пассивный залог</li>
+        </ul>
+    `;
+    
+    document.getElementById('section-history').classList.add('history-detail-open');
+}
+
+function closeHistoryDetail() {
+    document.getElementById('section-history').classList.remove('history-detail-open');
+}
+
+
+
+
+
+
 // ========== ИСТОРИЯ ==========
 async function loadHistory() {
     if (!currentUser) return;
@@ -1862,100 +1955,7 @@ async function loadStats() {
 
 
 
-// ========== ИСТОРИЯ (ПОЛНАЯ) ==========
-async function renderHistoryFull() {
-    if (!currentUser) return;
-    const container = document.getElementById('history-full-list');
-    container.innerHTML = '<p class="placeholder-box">Загрузка...</p>';
-    
-    const { data, error } = await window.supabaseClient.from('essays')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false });
-    
-    if (error || !data || data.length === 0) {
-        container.innerHTML = '<p class="placeholder-box">Пока нет сохранённых текстов.</p>';
-        return;
-    }
-    
-    let html = '';
-    data.forEach((e, index) => {
-        const date = new Date(e.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'short', year: 'numeric' });
-        const goalNames = { business: 'Деловая переписка', ielts_academic: 'IELTS Academic', ielts_general: 'IELTS General', social: 'Соцсети', creative: 'Творческое', daily: 'Повседневное' };
-        const goalName = goalNames[e.goal] || e.goal;
-        html += `
-            <div class="history-card" onclick="openHistoryDetail('${e.id}', ${index})">
-                <div class="history-card-left">
-                    <strong>${e.topic.substring(0, 60)}${e.topic.length > 60 ? '...' : ''}</strong>
-                    <span>${date} · ${goalName}</span>
-                </div>
-                <div class="history-card-right">
-                    <div class="word-count">${e.word_count}</div>
-                    <div>слов</div>
-                </div>
-            </div>`;
-    });
-    
-    container.innerHTML = html;
-    // Кешируем данные для быстрого открытия
-    window.historyData = data;
-}
 
-async function openHistoryDetail(essayId, index) {
-    const essay = window.historyData ? window.historyData[index] : null;
-    if (!essay) return;
-    
-    const detailPanel = document.getElementById('history-detail-panel');
-    const lowerText = essay.content.toLowerCase();
-    
-    // Подсветка ошибок
-    const errorPatterns = [
-        { regex: /\bI am (doctor|teacher|engineer|student)\b/gi, correct: 'I am a $1' },
-        { regex: /\barrived to\b/gi, correct: 'arrived in/at' },
-        { regex: /\bdiscuss about\b/gi, correct: 'discuss' },
-        { regex: /\b(suggest|recommend|propose) (him|her|them|me|you) to\b/gi, correct: '$1 that $2' },
-        { regex: /\b(furniture|information|advice|news|homework)s\b/gi, correct: '$1 (без s)' },
-        { regex: /\bgo to (shop|gym|hospital)\b/gi, correct: 'go to the $1' },
-        { regex: /\b(I|he|she|it|we|they) very much (like|love|hate)\b/gi, correct: '$1 $2 very much' },
-    ];
-    
-    let highlightedText = essay.content;
-    errorPatterns.forEach(p => {
-        highlightedText = highlightedText.replace(p.regex, match => `<span class="error-underline" title="Исправление: ${p.correct}">${match}</span>`);
-    });
-    
-    // Быстрый чек-лист для этого текста
-    const wordCount = essay.word_count;
-    const sentences = essay.content.split(/[.!?]+/).filter(s => s.trim().length > 0);
-    const hasIntro = ['introduction', 'in this essay', 'nowadays', 'recently'].some(p => lowerText.includes(p)) || wordCount > 30;
-    const hasConc = ['in conclusion', 'to sum up', 'overall'].some(p => lowerText.includes(p));
-    const hasLinkers = ['however', 'therefore', 'moreover'].filter(w => lowerText.includes(w)).length >= 1;
-    const hasPassive = /\b(is|are|was|were)\s+\w+(ed|en)\b/i.test(lowerText);
-    
-    detailPanel.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h3 style="margin:0;font-size:18px;">${essay.topic.substring(0, 70)}</h3>
-            <span style="cursor:pointer;font-size:24px;color:var(--text-muted);" onclick="closeHistoryDetail()">&times;</span>
-        </div>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
-            ${new Date(essay.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })} · ${essay.word_count} слов · ${essay.goal}
-        </p>
-        <div class="detail-text">${highlightedText}</div>
-        <h4 style="margin-bottom:12px;">Быстрый анализ</h4>
-        <ul class="checklist static">
-            <li class="${hasIntro ? 'checked' : 'failed'}">${hasIntro ? '✅' : '❌'} Введение</li>
-            <li class="${hasConc ? 'checked' : 'failed'}">${hasConc ? '✅' : '❌'} Заключение</li>
-            <li class="${hasLinkers ? 'checked' : 'failed'}">${hasLinkers ? '✅' : '❌'} Слова-связки</li>
-            <li class="${hasPassive ? 'checked' : 'failed'}">${hasPassive ? '✅' : '❌'} Пассивный залог</li>
-        </ul>
-    `;
-    
-    document.getElementById('section-history').classList.add('history-detail-open');
-}
-
-function closeHistoryDetail() {
-    document.getElementById('section-history').classList.remove('history-detail-open');
-}
 
 
 
