@@ -248,9 +248,7 @@ textarea#essay-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px
     box-shadow: var(--shadow);
     transform: translateX(4px);
 }
-.history-card-left {
-    flex: 1;
-}
+.history-card-left { flex: 1; }
 .history-card-left strong {
     display: block;
     font-size: 15px;
@@ -271,19 +269,49 @@ textarea#essay-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px
     font-weight: 700;
     color: var(--primary);
 }
+
+#section-history {
+    position: relative;
+}
+#history-list-panel {
+    flex: 1;
+    transition: all 0.4s ease;
+    padding-right: 24px;
+}
+#history-detail-panel {
+    width: 0;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+}
 .history-detail-open #history-list-panel {
-    flex: 0.45;
+    flex: 0.4;
+    padding-right: 8px;
 }
 .history-detail-open #history-detail-panel {
     width: 55%;
     opacity: 1;
     padding: 24px;
-    margin-left: 16px;
     overflow-y: auto;
-    max-height: 80vh;
+    position: relative;
 }
 .history-detail-open #history-overlay {
     display: block;
+}
+#history-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 5;
 }
 .error-underline {
     border-bottom: 2px wavy var(--danger);
