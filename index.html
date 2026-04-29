@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WriteUp — Прокачай письменный английский</title>
     <link rel="stylesheet" href="style-main.css">
-    <link rel="icon" href="https://tufzwbvrxfrvythibsma.supabase.co/storage/v1/object/public/bazh/dickerson.jpg">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>">
     <!-- Шрифты и Supabase -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +31,12 @@
 
     <main style="flex: 1;">
         <section class="hero">
+            <div class="hero-stats" style="display:flex;gap:32px;justify-content:center;margin-top:40px;color:var(--text-secondary);font-size:14px;">
+    <span>📝 <strong>1800+</strong> тем</span>
+    <span>✅ <strong>25</strong> критериев</span>
+    <span>🎯 <strong>6</strong> целей</span>
+    <span>📊 <strong>50</strong> вопросов теста</span>
+</div>
             <h1>Пишите на английском<br><span>как носитель</span></h1>
             <p>Платформа для прокачки письменного английского. 1000+ тем, профессиональные критерии оценки, детальная статистика и ваш личный словарь ошибок.</p>
             <div class="hero-buttons">
@@ -162,7 +168,7 @@
         <div class="logo" onclick="showSection('trainer')">WriteUp</div>
         <nav class="dashboard-nav">
             <a href="#" onclick="showSection('trainer')" class="btn btn-sm btn-secondary active-nav" data-section="trainer">📝 Тренажёр</a>
-            <a href="#" onclick="showSection('checklist')" class="btn btn-sm btn-secondary" data-section="checklist">✅ Чек-листы</a>
+            <a href="#" onclick="showSection('checklist')" class="btn btn-sm btn-secondary" data-section="checklist">📋 История</a>
             <a href="#" onclick="showSection('dictionary')" class="btn btn-sm btn-secondary" data-section="dictionary">📖 Словарь ошибок</a>
             <a href="#" onclick="showSection('levels')" class="btn btn-sm btn-secondary" data-section="levels">🎯 Тест</a>
             <a href="#" onclick="showSection('profile')" class="btn btn-sm btn-secondary" data-section="profile">👤 Профиль</a>
@@ -203,7 +209,7 @@
                 <div style="margin-top:20px;">
                     <h4>📋 Быстрый чек-лист</h4>
                     <p class="hint">Нажмите на пункт, чтобы отметить. <br>Система проверит автоматически после сохранения.</p>
-                    <ul id="quick-checklist" class="checklist">
+                                        <ul id="quick-checklist" class="checklist">
     <li data-criterion="topic_relevance">Соответствие теме</li>
     <li data-criterion="introduction">Введение</li>
     <li data-criterion="conclusion">Заключение</li>
@@ -213,17 +219,25 @@
     <li data-criterion="structure">Структура и логика</li>
     <li data-criterion="style">Стиль и оформление</li>
 </ul>
-</ul>
-</ul>
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="history-section"><h3>📋 Ваша история</h3><div id="history-list"><p class="placeholder-box">Загрузка...</p></div></div>
+        
     </div>
 
-    <!-- Чек-листы -->
-    <div id="section-checklist" class="dashboard-section"><h2 class="section-title">✅ Полный чек-лист (20 критериев)</h2><p class="section-subtitle">Система автоматически проанализирует ваш последний текст.</p><div id="detailed-checklist" class="grid grid-2"><p class="placeholder-box">Сохраните текст в тренажёре для анализа.</p></div></div>
+    <!-- история -->
+    <div id="section-history" class="dashboard-section">
+    <h2 class="section-title">📋 Ваша история</h2>
+    <p class="section-subtitle">Все ваши тексты с анализом</p>
+    <div style="display:flex;gap:0;position:relative;min-height:500px;overflow:hidden;">
+        <div id="history-list-panel" style="flex:1;transition:all 0.4s ease;padding-right:24px;">
+            <div id="history-full-list"><p class="placeholder-box">Загрузка...</p></div>
+        </div>
+        <div id="history-detail-panel" style="width:0;overflow:hidden;transition:all 0.4s ease;background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);opacity:0;"></div>
+    </div>
+    <div id="history-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:50;" onclick="closeHistoryDetail()"></div>
+</div>
 
     <!-- Словарь ошибок -->
     <div id="section-dictionary" class="dashboard-section"><h2 class="section-title">📖 Ваш словарь ошибок</h2><p class="section-subtitle">Ошибки, которые встречаются у вас чаще всего.</p><div id="personal-dictionary" class="grid grid-3"><p class="placeholder-box">Накопите тексты для анализа.</p></div></div>
@@ -242,6 +256,6 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<script src="script.js?v=3"></script>
 </body>
 </html>
