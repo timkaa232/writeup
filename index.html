@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru" data-theme="light">
 <head>
@@ -168,7 +169,7 @@
         <div class="logo" onclick="showSection('trainer')">WriteUp</div>
         <nav class="dashboard-nav">
             <a href="#" onclick="showSection('trainer')" class="btn btn-sm btn-secondary active-nav" data-section="trainer">📝 Тренажёр</a>
-           <a href="#" onclick="showSection('history')" class="btn btn-sm btn-secondary" data-section="history">📋 История</a>
+            <a href="#" onclick="showSection('history')" class="btn btn-sm btn-secondary" data-section="history">📋 История</a>
             <a href="#" onclick="showSection('dictionary')" class="btn btn-sm btn-secondary" data-section="dictionary">📖 Словарь ошибок</a>
             <a href="#" onclick="showSection('levels')" class="btn btn-sm btn-secondary" data-section="levels">🎯 Тест</a>
             <a href="#" onclick="showSection('profile')" class="btn btn-sm btn-secondary" data-section="profile">👤 Профиль</a>
@@ -223,21 +224,10 @@
                 </div>
             </div>
         </div>
-        
+    
     </div>
 
-    <!-- история -->
-    <div id="section-history" class="dashboard-section">
-    <h2 class="section-title">📋 Ваша история</h2>
-    <p class="section-subtitle">Все ваши тексты с анализом</p>
-    <div style="display:flex;gap:0;position:relative;min-height:500px;overflow:hidden;">
-        <div id="history-list-panel" style="flex:1;transition:all 0.4s ease;padding-right:24px;">
-            <div id="history-full-list"><p class="placeholder-box">Загрузка...</p></div>
-        </div>
-        <div id="history-detail-panel" style="width:0;overflow:hidden;transition:all 0.4s ease;background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);opacity:0;"></div>
-    </div>
-    <div id="history-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:50;" onclick="closeHistoryDetail()"></div>
-</div>
+
 
     <!-- Словарь ошибок -->
     <div id="section-dictionary" class="dashboard-section"><h2 class="section-title">📖 Ваш словарь ошибок</h2><p class="section-subtitle">Ошибки, которые встречаются у вас чаще всего.</p><div id="personal-dictionary" class="grid grid-3"><p class="placeholder-box">Накопите тексты для анализа.</p></div></div>
@@ -256,6 +246,6 @@
     </div>
 </div>
 
-<script src="script.js?v=3"></script>
+<script src="script.js"></script>
 </body>
 </html>
