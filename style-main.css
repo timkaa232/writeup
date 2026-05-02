@@ -361,3 +361,54 @@ textarea#essay-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px
 .test-option.wrong-answer { border-color: var(--danger); background: rgba(224,136,136,0.1); animation: shake 0.4s ease; }
 @keyframes correctPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+/* ========== ТЕЛЕФОН ========== */
+@media (max-width: 480px) {
+    .hero h1 { font-size: 28px; }
+    .hero p { font-size: 14px; }
+    .section-title { font-size: 24px; }
+    .section-subtitle { font-size: 14px; margin-bottom: 24px; }
+    .section { padding: 40px 0; }
+    
+    /* Шапка */
+    .navbar { padding: 10px 14px; }
+    .logo { font-size: 22px; }
+    .nav-links { gap: 6px; }
+    .nav-links a { font-size: 11px; }
+    .btn-sm { padding: 6px 12px; font-size: 11px; }
+    
+    /* Дашборд */
+    .dashboard-header { padding: 12px 14px; flex-direction: column; gap: 8px; }
+    .dashboard-nav { gap: 4px; }
+    .dashboard-nav .btn-sm { padding: 6px 10px; font-size: 10px; }
+    
+    /* Тренажёр */
+    #section-trainer > div { flex-direction: column; }
+    #section-trainer > div > div:first-child { width: 100%; }
+    #section-trainer > div > div:last-child { width: 100%; }
+    textarea#essay-input { min-height: 140px; font-size: 13px; }
+    
+    /* История */
+    .history-wrapper { flex-direction: column; max-height: none; }
+    #history-list-panel { max-height: 300px; }
+    .history-detail-open #history-list-panel { width: 100%; }
+    .history-detail-open #history-detail-panel { width: 100%; margin-left: 0; margin-top: 12px; }
+    
+    /* Карточки */
+    .card { padding: 20px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    
+    /* Футер */
+    footer > div { flex-direction: column; text-align: center; gap: 8px; }
+    
+    /* Тест */
+    #level-test-container.card { padding: 16px !important; max-width: 100%; }
+    .test-option { padding: 12px 14px; font-size: 14px; }
+    
+    /* Вход/регистрация */
+    .auth-container { flex-direction: column; margin: 10px; }
+    .auth-left, .auth-right { padding: 24px 20px; }
+    .auth-left h2 { font-size: 24px; }
+    
+    /* Словарь */
+    .detail-checklist { grid-template-columns: 1fr; }
+}
