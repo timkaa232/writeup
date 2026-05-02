@@ -10,12 +10,12 @@ let timerInterval = null;
 let timerSeconds = 0;
 let userEssays = []; // Кэш текстов для анализа
 
+
 // ========== НАВИГАЦИЯ ==========
 function navigateTo(page) {
     document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + page);
     if (target) target.style.display = (page === 'dashboard') ? 'block' : 'flex';
-    if (page === 'dashboard') initDashboard();
     if (page === 'index' || page === 'login' || page === 'register') {
         document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active-section'));
     }
@@ -95,14 +95,19 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     }
 });
 
-// ========== ВЫХОД ==========
 document.getElementById('logout-btn').addEventListener('click', async () => {
     await window.supabaseClient.auth.signOut();
     currentUser = null;
     userEssays = [];
+    historyCache = null;
+    // Разблокируем кнопку входа при следующем заходе
+    const loginBtn = document.querySelector('#login-form button');
+    if (loginBtn) {
+        loginBtn.textContent = 'Войти';
+        loginBtn.disabled = false;
+    }
     navigateTo('index');
 });
-
 // ========== ДАШБОРД: НАВИГАЦИЯ ПО СЕКЦИЯМ ==========
 function showSection(name) {
     document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active-section'));
@@ -120,19 +125,21 @@ function showSection(name) {
     if (name === 'profile') renderProfile();
 }
 
-// ========== ИНИЦИАЛИЗАЦИЯ ДАШБОРДА ==========
 async function initDashboard() {
     const { data: { user } } = await window.supabaseClient.auth.getUser();
     if (!user) { navigateTo('login'); return; }
     currentUser = user;
-    showSection('trainer');
-    await loadHistory();
-    await loadStats();
-    renderProfile();
-    // Подсветка активной кнопки
+    
+    // Жёстко показываем тренажёр первым
+    document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active-section'));
+    document.getElementById('section-trainer').classList.add('active-section');
+    document.querySelectorAll('.dashboard-nav a').forEach(a => a.classList.remove('active-nav'));
     document.querySelector('.dashboard-nav [data-section="trainer"]').classList.add('active-nav');
+    
+    // Фоном подгружаем статистику
+    loadStats().catch(() => {});
+    renderProfile();
 }
-
 // ========== ТРЕНАЖЁР ==========
 document.getElementById('generate-topic-btn').addEventListener('click', () => {
     // Библиотека тем. ВАЖНО: Здесь нужно будет расширить до 300 тем на каждую цель.
@@ -1655,7 +1662,7 @@ document.getElementById('save-text-btn').addEventListener('click', async () => {
     }
 
     alert('Текст сохранён и проанализирован!');
-    
+    historyCache = null; // сбросить кеш
     // Очищаем поле и обновляем интерфейс
     document.getElementById('essay-input').value = '';
     document.getElementById('word-count').textContent = '0 слов';
@@ -1663,7 +1670,7 @@ document.getElementById('save-text-btn').addEventListener('click', async () => {
     
     // Автоматический анализ чек-листа
     autoAnalyzeChecklist(essayText);
-    await loadHistory();
+    
     await loadStats();
 });
 
@@ -1679,93 +1686,44 @@ function autoAnalyzeChecklist(text) {
     // Делаем статичным
     document.getElementById('quick-checklist').classList.add('static');
     
-    // 7 факторов для быстрого анализа
+    //6 факторов для быстрого анализа
        const rules = {
-        'topic_relevance': {
-            check: () => {
-                if (!isTopicGenerated) return true; // если тема не сгенерирована — пропускаем
-                
-                // Извлекаем ключевые слова из темы
-                const topicWords = topicText.toLowerCase()
-                    .replace(/[.,!?;:'"()]/g, '')
-                    .split(/\s+/)
-                    .filter(w => w.length > 3) // слова длиннее 3 букв
-                    .filter(w => !['write', 'about', 'your', 'that', 'this', 'with', 'from', 'what', 'when', 'where', 'which', 'their', 'there', 'would', 'could', 'should', 'essay', 'letter', 'email', 'post', 'caption', 'describe', 'explain', 'discuss', 'advantages', 'disadvantages', 'agree', 'extent'].includes(w));
-                
-                // Проверяем, сколько ключевых слов темы есть в тексте
-                const matchedWords = topicWords.filter(w => lowerText.includes(w));
-                const matchPercentage = topicWords.length > 0 ? matchedWords.length / topicWords.length : 1;
-                
-                // Также проверяем, что текст не слишком универсальный
-                const genericPhrases = ['in conclusion', 'to sum up', 'in my opinion', 'i think', 'i believe', 'firstly', 'secondly', 'finally'];
-                const genericCount = genericPhrases.filter(p => lowerText.includes(p)).length;
-                const isTooGeneric = genericCount >= 3 && matchedWords.length < 2;
-                
-                return matchPercentage >= 0.25 && !isTooGeneric;
-            },
-            yes: '✅ Текст соответствует теме',
-            no: '❌ Текст не соответствует теме или слишком общий'
+    'topic_relevance': {
+        check: () => {
+            if (!isTopicGenerated) return true;
+            const topicWords = topicText.toLowerCase().replace(/[.,!?;:'"()]/g, '').split(/\s+/).filter(w => w.length > 3);
+            const matched = topicWords.filter(w => lowerText.includes(w));
+            return topicWords.length === 0 || matched.length >= Math.ceil(topicWords.length * 0.2);
         },
-        'introduction': {
-            check: () => ['introduction', 'in this essay', 'nowadays', 'recently', 'in recent years', 'it is often said', 'many people believe', 'in today\'s world', 'this essay will', 'the purpose of'].some(p => lowerText.includes(p)) || wordCount > 30,
-            yes: '✅ Найдено введение',
-            no: '❌ Добавьте вводную фразу'
-        },
-        'conclusion': {
-            check: () => ['in conclusion', 'to sum up', 'to conclude', 'in summary', 'overall', 'all in all', 'finally'].some(p => lowerText.includes(p)),
-            yes: '✅ Найдено заключение',
-            no: '❌ Добавьте заключение'
-        },
-        'linking_words': {
-            check: () => ['however', 'therefore', 'moreover', 'furthermore', 'nevertheless', 'consequently', 'additionally', 'on the other hand', 'for example', 'such as', 'firstly', 'secondly', 'in addition', 'as a result', 'meanwhile', 'whereas', 'while'].filter(w => lowerText.includes(w)).length >= 2,
-            yes: '✅ Слова-связки есть',
-            no: '❌ Мало слов-связок'
-        },
-        'grammar_range': {
-            check: () => {
-                const hasTenses = /\b(have been|had been|will be|is|are|was|were|has|have|had)\b/i.test(lowerText);
-                const hasPassive = /\b(is|are|was|were|has been|have been)\s+\w+(ed|en)\b/i.test(lowerText) || /\b(is|are|was|were)\s+(made|done|taken|built|written)\b/i.test(lowerText);
-                const hasConditional = /\bif\b/i.test(lowerText) && /\bwould|will|could\b/i.test(lowerText);
-                const hasModals = /\b(can|could|may|might|must|should|shall|will|would)\b/i.test(lowerText);
-                const score = [hasTenses, hasPassive, hasConditional, hasModals].filter(Boolean).length;
-                return score >= 2;
-            },
-            yes: '✅ Разнообразие грамматики',
-            no: '❌ Используйте разные времена, пассив, модальные глаголы'
-        },
-        'vocabulary': {
-            check: () => {
-                const uniqueWords = [...new Set(lowerText.split(/\s+/))].length;
-                const academicWords = ['significant', 'therefore', 'consequently', 'furthermore', 'nevertheless', 'moreover', 'demonstrate', 'indicate', 'suggest', 'analyze', 'establish', 'conduct', 'implement', 'acquire', 'relevant', 'sufficient', 'considerable', 'predominantly', 'subsequently', 'thus', 'hence'];
-                const academicCount = academicWords.filter(w => lowerText.includes(w)).length;
-                return uniqueWords >= 15 && academicCount >= 1;
-            },
-            yes: '✅ Лексика разнообразна',
-            no: '❌ Расширьте словарный запас'
-        },
-        'structure': {
-            check: () => {
-                const paragraphs = text.split(/\n\n+/).length;
-                const hasIntro = ['introduction', 'in this essay', 'nowadays', 'recently'].some(p => lowerText.includes(p)) || text.substring(0, 100).length > 50;
-                const hasBody = paragraphs >= 2;
-                const hasConc = ['in conclusion', 'to sum up', 'overall', 'finally'].some(p => lowerText.includes(p)) || text.substring(text.length - 100).length > 50;
-                return (hasIntro && hasBody) || (hasBody && hasConc);
-            },
-            yes: '✅ Логичная структура',
-            no: '❌ Разделите на введение, основную часть, заключение'
-        },
-        'style': {
-            check: () => {
-                const noSlang = !/\b(wanna|gonna|gotta|dunno|yeah|nah|okay|cool|stuff|thingy|kinda|sorta)\b/i.test(lowerText);
-                const noContractions = !/\b(don't|doesn't|isn't|aren't|wasn't|weren't|can't|couldn't|won't|wouldn't|shouldn't|it's|he's|she's|you're|we're|they're|i'm|i've|you've|we've|they've)\b/i.test(lowerText);
-                const formalStyle = noSlang && noContractions;
-                return formalStyle;
-            },
-            yes: '✅ Формальный стиль',
-            no: '❌ Избегайте сокращений и сленга'
-        }
-    };
-    
+        yes: '✅ Соответствует теме',
+        no: '❌ Не соответствует теме'
+    },
+    'introduction': {
+        check: () => wordCount > 20,
+        yes: '✅ Есть введение',
+        no: '❌ Добавьте введение'
+    },
+    'conclusion': {
+        check: () => ['in conclusion', 'to sum up', 'overall', 'finally'].some(p => lowerText.includes(p)),
+        yes: '✅ Есть заключение',
+        no: '❌ Добавьте заключение'
+    },
+    'linking_words': {
+        check: () => ['however', 'therefore', 'moreover', 'furthermore', 'because', 'although'].filter(w => lowerText.includes(w)).length >= 1,
+        yes: '✅ Слова-связки',
+        no: '❌ Мало связок'
+    },
+    'grammar_range': {
+        check: () => /\b(have been|had been|will be|is|are|was|were|has|have|had|can|could|should|must)\b/i.test(lowerText),
+        yes: '✅ Разнообразие грамматики',
+        no: '❌ Разнообразьте грамматику'
+    },
+    'style': {
+        check: () => !/\b(wanna|gonna|gotta|dunno|yeah|nah|okay|cool|don't|doesn't|isn't|can't|won't)\b/i.test(lowerText),
+        yes: '✅ Хороший стиль',
+        no: '❌ Избегайте сленга и сокращений'
+    }
+};
     let passedCount = 0;
     let analysisHTML = '';
     
@@ -1787,7 +1745,7 @@ function autoAnalyzeChecklist(text) {
         }
     });
     
-    const overallScore = Math.round((passedCount / 8) * 100);
+    const overallScore = Math.round((passedCount / 6) * 100);
     
     document.getElementById('text-stats').innerHTML = `
         <p><strong>📝 Слов:</strong> ${wordCount}</p>
@@ -1807,10 +1765,18 @@ function autoAnalyzeChecklist(text) {
 }
 
 
-// ========== ИСТОРИЯ (ПОЛНАЯ) ==========
+let historyCache = null;
+
 async function renderHistoryFull() {
     if (!currentUser) return;
     const container = document.getElementById('history-full-list');
+    if (!container) return;
+    
+    if (historyCache) {
+        renderHistoryCards(historyCache);
+        return;
+    }
+    
     container.innerHTML = '<p class="placeholder-box">Загрузка...</p>';
     
     const { data, error } = await window.supabaseClient.from('essays')
@@ -1823,6 +1789,11 @@ async function renderHistoryFull() {
         return;
     }
     
+    historyCache = data;
+    renderHistoryCards(data);
+}
+function renderHistoryCards(data) {
+    const container = document.getElementById('history-full-list');
     window.historyData = data;
     let html = '';
     data.forEach((e, index) => {
@@ -1837,61 +1808,11 @@ async function renderHistoryFull() {
                 </div>
                 <div class="history-card-right">
                     <div class="word-count">${e.word_count}</div>
-                    <div>слов</div>
+                    <div class="word-label">слов</div>
                 </div>
             </div>`;
     });
     container.innerHTML = html;
-}
-
-async function openHistoryDetail(essayId, index) {
-    const essay = window.historyData ? window.historyData[index] : null;
-    if (!essay) return;
-    
-    const detailPanel = document.getElementById('history-detail-panel');
-    const lowerText = essay.content.toLowerCase();
-    
-    const errorPatterns = [
-        { regex: /\bI am (doctor|teacher|engineer|student)\b/gi, correct: 'I am a $1' },
-        { regex: /\barrived to\b/gi, correct: 'arrived in/at' },
-        { regex: /\bdiscuss about\b/gi, correct: 'discuss' },
-        { regex: /\bgo to (shop|gym|hospital)\b/gi, correct: 'go to the $1' },
-    ];
-    
-    let highlightedText = essay.content;
-    errorPatterns.forEach(p => {
-        highlightedText = highlightedText.replace(p.regex, match => `<span class="error-underline" title="Исправление: ${p.correct}">${match}</span>`);
-    });
-    
-    const wordCount = essay.word_count;
-    const hasIntro = ['introduction', 'in this essay', 'nowadays', 'recently'].some(p => lowerText.includes(p)) || wordCount > 30;
-    const hasConc = ['in conclusion', 'to sum up', 'overall'].some(p => lowerText.includes(p));
-    const hasLinkers = ['however', 'therefore', 'moreover'].filter(w => lowerText.includes(w)).length >= 1;
-    const hasPassive = /\b(is|are|was|were)\s+\w+(ed|en)\b/i.test(lowerText);
-    
-    detailPanel.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h3 style="margin:0;font-size:18px;">${essay.topic.substring(0, 70)}</h3>
-            <span style="cursor:pointer;font-size:24px;color:var(--text-muted);" onclick="closeHistoryDetail()">&times;</span>
-        </div>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
-            ${new Date(essay.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })} · ${essay.word_count} слов
-        </p>
-        <div class="detail-text">${highlightedText}</div>
-        <h4 style="margin-bottom:12px;">Быстрый анализ</h4>
-        <ul class="checklist static">
-            <li class="${hasIntro ? 'checked' : 'failed'}">${hasIntro ? '✅' : '❌'} Введение</li>
-            <li class="${hasConc ? 'checked' : 'failed'}">${hasConc ? '✅' : '❌'} Заключение</li>
-            <li class="${hasLinkers ? 'checked' : 'failed'}">${hasLinkers ? '✅' : '❌'} Слова-связки</li>
-            <li class="${hasPassive ? 'checked' : 'failed'}">${hasPassive ? '✅' : '❌'} Пассивный залог</li>
-        </ul>
-    `;
-    
-    document.getElementById('section-history').classList.add('history-detail-open');
-}
-
-function closeHistoryDetail() {
-    document.getElementById('section-history').classList.remove('history-detail-open');
 }
 
 
@@ -1960,7 +1881,9 @@ async function openHistoryDetail(essayId, index) {
     if (!essay) return;
     
     const detailPanel = document.getElementById('history-detail-panel');
-    const lowerText = essay.content.toLowerCase();
+    const text = essay.content;
+    const lowerText = text.toLowerCase();
+    const goal = essay.goal;
     
     // Подсветка ошибок
     const errorPatterns = [
@@ -1973,46 +1896,135 @@ async function openHistoryDetail(essayId, index) {
         { regex: /\b(I|he|she|it|we|they) very much (like|love|hate)\b/gi, correct: '$1 $2 very much' },
     ];
     
-    let highlightedText = essay.content;
+    let highlightedText = text;
     errorPatterns.forEach(p => {
         highlightedText = highlightedText.replace(p.regex, match => `<span class="error-underline" title="Исправление: ${p.correct}">${match}</span>`);
     });
     
-    // Быстрый чек-лист для этого текста
     const wordCount = essay.word_count;
-    const sentences = essay.content.split(/[.!?]+/).filter(s => s.trim().length > 0);
-    const hasIntro = ['introduction', 'in this essay', 'nowadays', 'recently'].some(p => lowerText.includes(p)) || wordCount > 30;
-    const hasConc = ['in conclusion', 'to sum up', 'overall'].some(p => lowerText.includes(p));
-    const hasLinkers = ['however', 'therefore', 'moreover'].filter(w => lowerText.includes(w)).length >= 1;
-    const hasPassive = /\b(is|are|was|were)\s+\w+(ed|en)\b/i.test(lowerText);
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const avgSentenceLength = sentences.length > 0 ? Math.round(wordCount / sentences.length) : 0;
+    const uniqueWords = [...new Set(lowerText.split(/\s+/))].length;
+    const articleCount = (lowerText.match(/\b(the|a|an)\b/g) || []).length;
+    const prepositionCount = (lowerText.match(/\b(in|on|at|by|for|with|from|to|of|about)\b/gi) || []).length;
+    const modalCount = (lowerText.match(/\b(can|could|may|might|must|should|shall|will|would)\b/gi) || []).length;
+    const linkerCount = (lowerText.match(/\b(however|therefore|moreover|furthermore|nevertheless|additionally|meanwhile|whereas|although|because|since|if|when|then|also|besides|as a result|for example|such as|on the other hand|in contrast)\b/gi) || []).length;
+    const passiveCount = (lowerText.match(/\b(is|are|was|were|has been|have been)\s+\w+(ed|en|d|t)\b/gi) || []).length;
+    const complexCount = (lowerText.match(/\b(which|who|whom|whose|that|where|when|while|although|because|since|if|unless)\b/gi) || []).length;
+    const academicWords = ['significant', 'therefore', 'consequently', 'furthermore', 'nevertheless', 'moreover', 'demonstrate', 'indicate', 'suggest', 'analyze', 'establish', 'conduct', 'implement', 'acquire', 'relevant', 'sufficient', 'considerable', 'predominantly', 'subsequently', 'thus', 'hence'];
+    const academicCount = academicWords.filter(w => lowerText.includes(w)).length;
+    const hasContractions = /\b(don't|doesn't|isn't|aren't|wasn't|weren't|can't|couldn't|won't|wouldn't|shouldn't|it's|he's|she's|you're|we're|they're|i'm)\b/i.test(lowerText);
+    const hasSlang = /\b(wanna|gonna|gotta|dunno|yeah|nah|okay|cool|stuff|thingy|kinda|sorta)\b/i.test(lowerText);
+    const hasIntro = ['introduction', 'in this essay', 'nowadays', 'recently', 'in recent years'].some(p => lowerText.includes(p)) || wordCount > 30;
+    const hasConc = ['in conclusion', 'to sum up', 'in summary', 'overall', 'all in all'].some(p => lowerText.includes(p));
+    const paragraphs = text.split(/\n\n+/).length >= 2;
+    const hasTenses = /\b(have been|had been|will be|was|were|am|are|is|has|have|had)\b/i.test(lowerText);
+    const hasConditional = /\bif\b/i.test(lowerText) && /\bwould|will|could|might\b/i.test(lowerText);
+    const spellingOk = !/\b(teh|adn|thier|recieve|occured|seperate|definately|goverment|wich|alot|begining|accomodate)\b/i.test(lowerText);
+    const punctuationOk = /[.,!?;:'"]/.test(text);
+    const capsOk = text[0] === text[0]?.toUpperCase();
+    
+    let criteria = [
+        { name: 'Введение', passed: hasIntro, detail: hasIntro ? 'Чётко обозначена тема' : 'Добавьте вводную фразу' },
+        { name: 'Заключение', passed: hasConc, detail: hasConc ? 'Итог подведён' : 'Добавьте заключение' },
+        { name: 'Абзацы', passed: paragraphs, detail: paragraphs ? 'Текст разделён на абзацы' : 'Разделите текст на абзацы' },
+        { name: 'Объём (50+)', passed: wordCount >= 50, detail: wordCount >= 50 ? 'Достаточный объём' : 'Минимум 50 слов' },
+        { name: 'Времена глаголов', passed: hasTenses, detail: hasTenses ? 'Разные времена' : 'Используйте разные времена' },
+        { name: 'Пассивный залог', passed: passiveCount >= 1, detail: passiveCount >= 1 ? 'Пассив присутствует' : 'Добавьте пассивный залог' },
+        { name: 'Модальные глаголы', passed: modalCount >= 1, detail: modalCount >= 1 ? 'Модальные глаголы есть' : 'Добавьте can, should, must' },
+        { name: 'Артикли', passed: articleCount >= wordCount * 0.02, detail: articleCount >= wordCount * 0.02 ? 'Артикли на месте' : 'Проверьте a, an, the' },
+        { name: 'Предлоги', passed: prepositionCount >= 3, detail: prepositionCount >= 3 ? 'Предлоги разнообразны' : 'Добавьте in, on, at, for' },
+        { name: 'Слова-связки', passed: linkerCount >= 2, detail: linkerCount >= 2 ? 'Связки есть' : 'Добавьте however, therefore' },
+        { name: 'Сложные предложения', passed: complexCount >= 1, detail: complexCount >= 1 ? 'Сложные конструкции есть' : 'Добавьте which, because, although' },
+        { name: 'Орфография', passed: spellingOk, detail: spellingOk ? 'Грубых ошибок нет' : 'Проверьте правописание' },
+        { name: 'Пунктуация', passed: punctuationOk, detail: punctuationOk ? 'Знаки препинания есть' : 'Добавьте точки и запятые' },
+        { name: 'Заглавные буквы', passed: capsOk, detail: capsOk ? 'Верно' : 'Начинайте с заглавной' },
+        { name: 'Без сленга', passed: !hasSlang, detail: !hasSlang ? 'Формальный стиль' : 'Уберите wanna, gonna, cool' },
+        { name: 'Без сокращений', passed: !hasContractions, detail: !hasContractions ? 'Нет сокращений' : 'Раскройте сокращения' },
+    ];
+    
+    // Специфичные критерии
+    if (goal === 'ielts_academic' || goal === 'ielts_general') {
+        criteria.push(
+            { name: 'Академическая лексика', passed: academicCount >= 3, detail: academicCount >= 3 ? 'Хорошо' : 'Добавьте significant, consequently, furthermore' },
+            { name: 'Структура эссе', passed: hasIntro && hasConc && paragraphs, detail: 'Введение + основная часть + заключение' },
+            { name: 'Аргументы/примеры', passed: wordCount >= 80 && sentences.length >= 4, detail: 'Приведите 2-3 аргумента с примерами' },
+            { name: 'Формальный тон', passed: !hasContractions && !hasSlang, detail: 'Строгий академический стиль' }
+        );
+    } else if (goal === 'business') {
+        criteria.push(
+            { name: 'Приветствие', passed: /\b(dear|hello|good morning|good afternoon)\b/i.test(lowerText), detail: 'Начните с приветствия' },
+            { name: 'Вежливый тон', passed: /\b(please|thank you|could you|would you|appreciate)\b/i.test(lowerText), detail: 'Используйте please, thank you' },
+            { name: 'Цель письма', passed: sentences.length >= 2, detail: 'Чётко обозначьте цель' },
+            { name: 'Подпись', passed: /\b(best regards|sincerely|kind regards|yours)\b/i.test(lowerText) || text.length > 100, detail: 'Завершите подписью' }
+        );
+    } else if (goal === 'social') {
+        criteria.push(
+            { name: 'Вовлечение', passed: wordCount >= 10, detail: 'Начните с цепляющей фразы' },
+            { name: 'Хештеги', passed: /#\w+/.test(text), detail: 'Добавьте #хештеги' },
+            { name: 'Призыв к действию', passed: /\b(comment|share|like|follow|check|click|tell me)\b/i.test(lowerText), detail: 'Добавьте призыв к действию' },
+            { name: 'Живой тон', passed: !hasSlang, detail: 'Дружелюбный, но не сленговый' }
+        );
+    } else if (goal === 'creative') {
+        criteria.push(
+            { name: 'Образность', passed: uniqueWords >= wordCount * 0.6, detail: 'Используйте метафоры и описания' },
+            { name: 'Диалоги', passed: /["]/.test(text) || sentences.length >= 4, detail: 'Добавьте диалоги или сцены' },
+            { name: 'Эмоции', passed: wordCount >= 40, detail: 'Передайте эмоции персонажей' },
+            { name: 'Сюжет', passed: sentences.length >= 3, detail: 'Завязка → развитие → развязка' }
+        );
+    } else if (goal === 'daily') {
+        criteria.push(
+            { name: 'Естественность', passed: wordCount >= 20, detail: 'Пишите как в реальной жизни' },
+            { name: 'Полезность', passed: wordCount >= 25, detail: 'Текст должен быть полезным' },
+            { name: 'Конкретика', passed: /\b(today|tomorrow|yesterday|at|on|by|next|this|last)\b/i.test(lowerText), detail: 'Укажите время и место' },
+            { name: 'Теплота', passed: /\b(thanks|great|awesome|lovely|nice|good)\b/i.test(lowerText), detail: 'Тёплый, дружеский тон' }
+        );
+    }
+    
+    const totalItems = criteria.length;
+    const totalPassed = criteria.filter(c => c.passed).length;
+    const overallPercentage = Math.round((totalPassed / totalItems) * 100);
+    
+    let overallLevel;
+    if (overallPercentage >= 90) overallLevel = 'Отлично!';
+    else if (overallPercentage >= 75) overallLevel = 'Хорошо';
+    else if (overallPercentage >= 60) overallLevel = 'Средне';
+    else if (overallPercentage >= 40) overallLevel = 'Ниже среднего';
+    else overallLevel = 'Требует улучшения';
+    
+    let checklistHTML = '';
+    criteria.forEach(c => {
+        const cls = c.passed ? 'checked' : 'failed';
+        const icon = c.passed ? '✓' : '✗';
+        checklistHTML += `
+            <div class="criteria-item ${cls}">
+                <div class="criteria-header"><span class="criteria-icon">${icon}</span><span class="criteria-name">${c.name}</span></div>
+                <div class="criteria-detail">${c.detail}</div>
+            </div>`;
+    });
     
     detailPanel.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <h3 style="margin:0;font-size:18px;">${essay.topic.substring(0, 70)}</h3>
             <span style="cursor:pointer;font-size:24px;color:var(--text-muted);" onclick="closeHistoryDetail()">&times;</span>
         </div>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
             ${new Date(essay.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })} · ${essay.word_count} слов · ${essay.goal}
         </p>
         <div class="detail-text">${highlightedText}</div>
-        <h4 style="margin-bottom:12px;">Быстрый анализ</h4>
-        <ul class="checklist static">
-            <li class="${hasIntro ? 'checked' : 'failed'}">${hasIntro ? '✅' : '❌'} Введение</li>
-            <li class="${hasConc ? 'checked' : 'failed'}">${hasConc ? '✅' : '❌'} Заключение</li>
-            <li class="${hasLinkers ? 'checked' : 'failed'}">${hasLinkers ? '✅' : '❌'} Слова-связки</li>
-            <li class="${hasPassive ? 'checked' : 'failed'}">${hasPassive ? '✅' : '❌'} Пассивный залог</li>
-        </ul>
+        <div style="text-align:center;margin-bottom:16px;padding:14px;background:var(--primary-light);border-radius:12px;">
+            <h4 style="margin:0;">Общий результат: ${overallPercentage}% — ${overallLevel}</h4>
+            <div style="margin-top:8px;background:var(--bg);border-radius:20px;height:6px;overflow:hidden;">
+                <div style="height:100%;width:${overallPercentage}%;background:var(--gradient);border-radius:20px;"></div>
+            </div>
+            <p style="margin:6px 0 0;font-size:11px;color:var(--text-secondary);">${totalPassed} из ${totalItems} критериев</p>
+        </div>
+        <h4 style="margin-bottom:10px;">Подробный анализ</h4>
+        <div class="detail-checklist">${checklistHTML}</div>
     `;
     
     document.getElementById('section-history').classList.add('history-detail-open');
 }
-
-function closeHistoryDetail() {
-    document.getElementById('section-history').classList.remove('history-detail-open');
-}
-
-
-
 
 // ========== ДЕТАЛЬНЫЙ ЧЕК-ЛИСТ ==========
 function renderDetailedChecklist() {
@@ -2165,23 +2177,30 @@ function renderDetailedChecklist() {
     container.innerHTML = finalHTML;
 }
 // ========== СЛОВАРЬ ОШИБОК (САМООБУЧАЮЩИЙСЯ) ==========
-// ========== СЛОВАРЬ ОШИБОК (САМООБУЧАЮЩИЙСЯ) ==========
-function renderPersonalDictionary() {
+async function renderPersonalDictionary() {
     const container = document.getElementById('personal-dictionary');
+    if (!currentUser) return;
+    
+    const { data, error } = await window.supabaseClient.from('essays')
+        .select('content')
+        .eq('user_id', currentUser.id);
+    
     const errorPatterns = [
         { regex: /\bI am (doctor|teacher|engineer|student)\b/gi, wrong: 'I am doctor', correct: 'I am a doctor', category: 'Артикли' },
-        { regex: /\barrived to (the|a|an)?\s*\w+/gi, wrong: 'arrived to Moscow', correct: 'arrived in Moscow', category: 'Предлоги' },
-        { regex: /\b(I|he|she|it|we|they) very much (like|love|hate|enjoy)\b/gi, wrong: 'I very much like coffee', correct: 'I like coffee very much', category: 'Порядок слов' },
-        { regex: /\bdiscuss about\b/gi, wrong: 'discuss about the problem', correct: 'discuss the problem', category: 'Грамматика' },
-        { regex: /\b(suggest|recommend|propose) (him|her|them|me|you) to\b/gi, wrong: 'suggest him to go', correct: 'suggest that he go / suggest going', category: 'Конструкции' },
-        { regex: /\b(furniture|information|advice|news|homework)s\b/gi, wrong: 'furnitures, informations', correct: 'furniture, information (без s)', category: 'Мн.число' },
-        { regex: /\b(go to shop|go to gym|go to school|go to hospital)\b/gi, wrong: 'go to shop', correct: 'go to the shop', category: 'Артикли' },
+        { regex: /\barrived to\b/gi, wrong: 'arrived to', correct: 'arrived in/at', category: 'Предлоги' },
+        { regex: /\b(I|he|she|it|we|they) very much (like|love|hate|enjoy)\b/gi, wrong: 'I very much like', correct: 'I like very much', category: 'Порядок слов' },
+        { regex: /\bdiscuss about\b/gi, wrong: 'discuss about', correct: 'discuss', category: 'Грамматика' },
+        { regex: /\b(suggest|recommend|propose) (him|her|them|me|you) to\b/gi, wrong: 'suggest him to', correct: 'suggest that he', category: 'Конструкции' },
+        { regex: /\b(furniture|information|advice|news|homework)s\b/gi, wrong: 'furnitures', correct: 'furniture (без s)', category: 'Мн.число' },
+        { regex: /\bgo to (shop|gym|hospital)\b/gi, wrong: 'go to shop', correct: 'go to the shop', category: 'Артикли' },
+        { regex: /\bmake (a|the) (photo|picture)\b/gi, wrong: 'make a photo', correct: 'take a photo', category: 'Коллокации' },
+        { regex: /\bdepend of\b/gi, wrong: 'depend of', correct: 'depend on', category: 'Предлоги' },
+        { regex: /\b(he|she) don't\b/gi, wrong: 'he don\'t', correct: 'he doesn\'t', category: 'Грамматика' },
     ];
     
-    // Подсчёт частоты ошибок на основе текстов пользователя
     let errorFrequency = {};
-    if (userEssays.length > 0) {
-        userEssays.forEach(essay => {
+    if (data && data.length > 0) {
+        data.forEach(essay => {
             errorPatterns.forEach(pattern => {
                 if (pattern.regex.test(essay.content)) {
                     const key = pattern.correct;
@@ -2191,47 +2210,127 @@ function renderPersonalDictionary() {
         });
     }
     
-    // Сортировка по частоте и выбор топ-15
     const sortedErrors = Object.entries(errorFrequency)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 15);
+        .slice(0, 12);
     
-    let html = '';
     if (sortedErrors.length === 0) {
-        html = '<p class="placeholder-box">Недостаточно данных. Напишите больше текстов, чтобы увидеть свои частые ошибки.</p>';
-    } else {
-        sortedErrors.forEach(([key, count], index) => {
-            const pattern = errorPatterns.find(p => p.correct === key);
-            if (pattern) {
-                html += `
-                <div class="error-card card">
-                    <span><strong>#${index + 1}</strong> (${count} раз(а))</span>
-                    <p style="margin-top:8px;"><span class="wrong">✗ ${pattern.wrong}</span></p>
-                    <p><span class="correct">✓ ${pattern.correct}</span></p>
-                    <small style="color:var(--text-muted);">Категория: ${pattern.category}</small>
-                </div>`;
-            }
-        });
+        container.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
+                <div style="font-size:52px;margin-bottom:16px;">&#128220;</div>
+                <h3>Пока нет ошибок</h3>
+                <p style="color:var(--text-muted);max-width:420px;margin:0 auto 20px;">
+                    Ошибки будут собираться автоматически из всех ваших текстов. Напишите и сохраните текст в тренажёре, и мы найдём ваши типичные ошибки.
+                </p>
+                <button class="btn btn-primary" onclick="showSection('trainer')">Перейти в тренажёр</button>
+            </div>`;
+        return;
     }
+    
+    const totalErrors = sortedErrors.reduce((sum, [, count]) => sum + count, 0);
+    
+    let html = `
+        <div style="grid-column:1/-1;margin-bottom:24px;">
+            <div style="display:flex;align-items:center;gap:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;">
+                <div style="font-size:40px;">&#128269;</div>
+                <div>
+                    <h3 style="margin:0;">Найдено ошибок: ${totalErrors}</h3>
+                    <p style="margin:2px 0 0;font-size:13px;color:var(--text-muted);">На основе ${data.length} текст(ов)</p>
+                </div>
+            </div>
+        </div>`;
+    
+    sortedErrors.forEach(([key, count], index) => {
+        const pattern = errorPatterns.find(p => p.correct === key);
+        if (!pattern) return;
+        const percentage = Math.round((count / totalErrors) * 100);
+        const barColor = index === 0 ? 'var(--danger)' : index < 3 ? 'var(--warning)' : 'var(--primary)';
+        html += `
+            <div class="card" style="padding:18px 20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-weight:700;font-size:18px;color:var(--primary);">#${index + 1}</span>
+                    <span style="font-size:11px;background:var(--primary-light);color:var(--primary);padding:4px 10px;border-radius:20px;">${pattern.category}</span>
+                </div>
+                <div style="margin-bottom:6px;">
+                    <span style="font-size:13px;color:var(--danger);text-decoration:line-through;display:block;">&#10007; ${pattern.wrong}</span>
+                    <span style="font-size:13px;color:var(--success);font-weight:600;">&#10003; ${pattern.correct}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="flex:1;background:var(--bg);border-radius:10px;height:5px;overflow:hidden;">
+                        <div style="height:100%;width:${percentage}%;background:${barColor};border-radius:10px;"></div>
+                    </div>
+                    <span style="font-size:12px;font-weight:600;color:${barColor};">${count} раз${count > 1 && count < 5 ? 'а' : ''}</span>
+                </div>
+            </div>`;
+    });
+    
     container.innerHTML = html;
 }
-
 // ========== ТЕСТ НА УРОВЕНЬ (рендер) ==========
 function renderLevelTest() {
     const container = document.getElementById('level-test-container');
     if (!container) return;
     
     container.innerHTML = `
-        <p>Тест из 50 вопросов для точного определения уровня (A1–C2).</p>
-        <div id="test-area">
-            <div id="question-text" style="font-size:18px;margin-bottom:24px;"></div>
+        <!-- СТАРТОВЫЙ ЭКРАН -->
+        <div id="test-start-screen" style="text-align:center;padding:10px 0;">
+            <div style="font-size:64px;margin-bottom:12px;animation:floatIcon 3s ease-in-out infinite;">&#127942;</div>
+            <h3 style="font-size:24px;margin-bottom:6px;font-weight:700;">Определите свой уровень английского</h3>
+            <p style="color:var(--text-muted);margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;font-size:14px;">
+                Точный тест из 50 вопросов, разработанный в соответствии с международной шкалой CEFR. Охватывает грамматику, лексику и понимание языковых конструкций.
+            </p>
+            
+            <!-- Три шага -->
+            <div style="display:flex;gap:16px;justify-content:center;margin-bottom:28px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:140px;max-width:180px;background:var(--bg);border-radius:var(--radius-sm);padding:18px 14px;text-align:center;border:1px solid var(--border);">
+                    <div style="font-size:28px;margin-bottom:6px;">&#9997;</div>
+                    <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Отвечайте</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Выбирайте правильный вариант из трёх</div>
+                </div>
+                <div style="flex:1;min-width:140px;max-width:180px;background:var(--bg);border-radius:var(--radius-sm);padding:18px 14px;text-align:center;border:1px solid var(--border);">
+                    <div style="font-size:28px;margin-bottom:6px;">&#128200;</div>
+                    <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Анализируйте</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Система подсчитает результат</div>
+                </div>
+                <div style="flex:1;min-width:140px;max-width:180px;background:var(--bg);border-radius:var(--radius-sm);padding:18px 14px;text-align:center;border:1px solid var(--border);">
+                    <div style="font-size:28px;margin-bottom:6px;">&#127891;</div>
+                    <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Узнайте уровень</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Результат от A1 до C2</div>
+                </div>
+            </div>
+            
+            <!-- Что даст тест -->
+            <div style="background:var(--primary-light);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:24px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+                <div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--primary);">&#128213; После теста вы узнаете:</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
+                    &#10003; Ваш текущий уровень по шкале CEFR<br>
+                    &#10003; Сильные и слабые стороны в грамматике<br>
+                    &#10003; Рекомендации по дальнейшему обучению<br>
+                    &#10003; Результат сохранится в вашем профиле
+                </div>
+            </div>
+            
+            <button id="start-test-btn" class="btn btn-primary btn-lg" style="font-size:16px;padding:16px 40px;">Начать тестирование &#10132;</button>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">~10 минут · 50 вопросов · Можно пройти заново</p>
+        </div>
+        
+        <!-- ТЕСТ -->
+        <div id="test-area" style="display:none;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+                <div style="width:40px;height:4px;background:var(--bg);border-radius:4px;flex:1;overflow:hidden;">
+                    <div id="test-progress-bar" style="height:100%;width:0%;background:var(--gradient);border-radius:4px;transition:width 0.3s ease;"></div>
+                </div>
+                <span id="progress-indicator" style="font-size:12px;color:var(--text-muted);white-space:nowrap;">1/50</span>
+            </div>
+            <div id="question-text" style="font-size:17px;margin-bottom:20px;font-weight:600;line-height:1.5;"></div>
             <div id="options-container"></div>
-            <div style="margin-top:24px;display:flex;justify-content:space-between;align-items:center;">
-                <span id="progress-indicator">Вопрос 1/50</span>
-                <button id="next-question-btn" class="btn btn-primary" disabled>Далее →</button>
+            <div style="margin-top:24px;display:flex;justify-content:flex-end;">
+                <button id="next-question-btn" class="btn btn-primary" disabled>Далее &#10132;</button>
             </div>
         </div>
-        <div id="test-result" style="display:none; text-align:center;"></div>
+        
+        <!-- РЕЗУЛЬТАТ -->
+        <div id="test-result" style="display:none;text-align:center;padding:10px 0;"></div>
     `;
     
     // Вопросы теста
@@ -2296,36 +2395,39 @@ function renderLevelTest() {
             const total = window.testQuestions.length;
             const percentage = (score / total) * 100;
             
-            let level;
-            if (percentage >= 90) level = 'C2';
-            else if (percentage >= 75) level = 'C1';
-            else if (percentage >= 60) level = 'B2';
-            else if (percentage >= 40) level = 'B1';
-            else if (percentage >= 20) level = 'A2';
-            else level = 'A1';
+            let level, levelDesc, levelColor;
+            if (percentage >= 90) { level = 'C2'; levelDesc = 'Владение в совершенстве (Proficiency)'; levelColor = '#6bbf8a'; }
+            else if (percentage >= 75) { level = 'C1'; levelDesc = 'Продвинутый (Advanced)'; levelColor = '#6bbf8a'; }
+            else if (percentage >= 60) { level = 'B2'; levelDesc = 'Выше среднего (Upper-Intermediate)'; levelColor = '#e8c880'; }
+            else if (percentage >= 40) { level = 'B1'; levelDesc = 'Средний (Intermediate)'; levelColor = '#e8c880'; }
+            else if (percentage >= 20) { level = 'A2'; levelDesc = 'Элементарный (Elementary)'; levelColor = '#e08888'; }
+            else { level = 'A1'; levelDesc = 'Начинающий (Beginner)'; levelColor = '#e08888'; }
             
             if (currentUser) {
-                window.supabaseClient.auth.updateUser({
-                    data: { english_level: level }
-                }).then(() => {
-                    console.log('Уровень обновлён:', level);
-                });
+                window.supabaseClient.auth.updateUser({ data: { english_level: level } });
             }
             
             document.getElementById('test-area').style.display = 'none';
             document.getElementById('test-result').style.display = 'block';
             document.getElementById('test-result').innerHTML = `
-                <h2>Ваш уровень: ${level}</h2>
-                <p>Правильных ответов: ${score}/${total}</p>
-                <p>Процент точности: ${Math.round(percentage)}%</p>
-                <p style="color:var(--success);">✅ Уровень сохранён в профиле!</p>
-                <button class="btn btn-primary" onclick="showSection('levels')">Пройти заново</button>
+                <div style="font-size:72px;margin-bottom:12px;">${percentage >= 75 ? '&#127881;' : percentage >= 40 ? '&#128170;' : '&#128218;'}</div>
+                <h2 style="margin-bottom:4px;">Ваш уровень: <span style="color:${levelColor};">${level}</span></h2>
+                <p style="font-size:16px;color:var(--text-secondary);margin-bottom:16px;">${levelDesc}</p>
+                <div style="width:200px;height:10px;background:var(--bg);border-radius:10px;margin:0 auto 12px;overflow:hidden;">
+                    <div style="height:100%;width:${percentage}%;background:${levelColor};border-radius:10px;"></div>
+                </div>
+                <p style="font-size:14px;color:var(--text-muted);">Правильных ответов: <strong>${score}</strong> из <strong>${total}</strong> (${Math.round(percentage)}%)</p>
+                <p style="color:var(--success);font-size:13px;margin-top:8px;">&#10003; Уровень сохранён в профиле</p>
+                <button class="btn btn-primary" onclick="showSection('levels')" style="margin-top:16px;">Пройти заново</button>
             `;
             return;
         }
         
         const q = window.testQuestions[currentQ];
         document.getElementById('question-text').textContent = q.q;
+        document.getElementById('progress-indicator').textContent = `${currentQ + 1}/${window.testQuestions.length}`;
+        document.getElementById('test-progress-bar').style.width = ((currentQ / window.testQuestions.length) * 100) + '%';
+        
         const optsContainer = document.getElementById('options-container');
         optsContainer.innerHTML = '';
         q.opts.forEach((opt, i) => {
@@ -2345,53 +2447,37 @@ function renderLevelTest() {
             };
             optsContainer.appendChild(btn);
         });
-        document.getElementById('progress-indicator').textContent = `Вопрос ${currentQ + 1}/${window.testQuestions.length}`;
         document.getElementById('next-question-btn').disabled = true;
     }
+    
+    document.getElementById('start-test-btn').addEventListener('click', () => {
+        document.getElementById('test-start-screen').style.display = 'none';
+        document.getElementById('test-area').style.display = 'block';
+        showQuestion();
+    });
     
     document.getElementById('next-question-btn').addEventListener('click', () => {
         currentQ++;
         showQuestion();
     });
-    
-    showQuestion();
 }
-
 // ========== ПРОФИЛЬ ==========
+let profileCache = null;
+
 async function renderProfile() {
     if (!currentUser) return;
-    
-    const { data: { user } } = await window.supabaseClient.auth.getUser();
-    if (user) currentUser = user;
     
     const info = document.getElementById('profile-info');
     const userData = currentUser.user_metadata || {};
     
     const levelNames = {
-        'A1': 'Начинающий (Beginner)',
-        'A2': 'Элементарный (Elementary)',
-        'B1': 'Средний (Intermediate)',
-        'B2': 'Выше среднего (Upper-Intermediate)',
-        'C1': 'Продвинутый (Advanced)',
-        'C2': 'Владение в совершенстве (Proficiency)'
+        'A1': 'Начинающий (Beginner)', 'A2': 'Элементарный (Elementary)', 'B1': 'Средний (Intermediate)',
+        'B2': 'Выше среднего (Upper-Intermediate)', 'C1': 'Продвинутый (Advanced)', 'C2': 'Владение в совершенстве (Proficiency)'
     };
-    const levelCode = userData.english_level || 'Не указан';
-    const levelName = levelNames[levelCode] || levelCode;
-    
     const goalNames = {
-        'business': 'Деловая переписка',
-        'ielts_academic': 'IELTS Academic',
-        'ielts_general': 'IELTS General',
-        'social': 'Социальные сети',
-        'creative': 'Творческое письмо',
-        'daily': 'Повседневное общение'
+        'business': 'Деловая переписка', 'ielts_academic': 'IELTS Academic', 'ielts_general': 'IELTS General',
+        'social': 'Социальные сети', 'creative': 'Творческое письмо', 'daily': 'Повседневное общение'
     };
-    const goalName = goalNames[userData.goal] || userData.goal || 'Не указана';
-    
-    const genderName = userData.gender === 'male' ? 'Мужской' : userData.gender === 'female' ? 'Женский' : 'Не указан';
-    const birthYear = userData.birth_year || '—';
-    const age = birthYear !== '—' ? new Date().getFullYear() - parseInt(birthYear) : '—';
-    const regDate = new Date(currentUser.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' });
     
     info.innerHTML = `
         <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;">
@@ -2405,28 +2491,38 @@ async function renderProfile() {
         </div>
         <hr style="border-color:var(--border);margin:20px 0;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div><strong>Пол:</strong> ${genderName}</div>
-            <div><strong>Возраст:</strong> ${age}</div>
-            <div><strong>Год рождения:</strong> ${birthYear}</div>
-            <div><strong>Дата регистрации:</strong> ${regDate}</div>
+            <div><strong>Пол:</strong> ${userData.gender === 'male' ? 'Мужской' : userData.gender === 'female' ? 'Женский' : 'Не указан'}</div>
+            <div><strong>Возраст:</strong> ${userData.birth_year ? new Date().getFullYear() - parseInt(userData.birth_year) : '—'}</div>
+            <div><strong>Год рождения:</strong> ${userData.birth_year || '—'}</div>
+            <div><strong>Дата регистрации:</strong> ${new Date(currentUser.created_at).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
             <div style="grid-column:1/-1;background:var(--primary-light);padding:12px;border-radius:8px;">
-                <strong>🎯 Уровень английского:</strong> <span style="font-size:18px;font-weight:700;color:var(--primary);">${levelName}</span>
+                <strong>Уровень английского:</strong> <span style="font-size:18px;font-weight:700;color:var(--primary);">${levelNames[userData.english_level] || userData.english_level || 'Не указан'}</span>
             </div>
             <div style="grid-column:1/-1;background:var(--bg);padding:12px;border-radius:8px;">
-                <strong>📚 Цель обучения:</strong> ${goalName}
+                <strong>Цель обучения:</strong> ${goalNames[userData.goal] || userData.goal || 'Не указана'}
             </div>
-        </div>
-    `;
-    await loadStats();
+        </div>`;
+    
+    // Статистику грузим в фоне
+    loadStats();
 }
-
+// принудительно показываем тренажёр после загрузки дашборда
+const origInit = initDashboard;
+initDashboard = async function() {
+    await origInit();
+    setTimeout(() => {
+        document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active-section'));
+        const trainer = document.getElementById('section-trainer');
+        if (trainer) trainer.classList.add('active-section');
+    }, 100);
+};
 // ========== ИНИЦИАЛИЗАЦИЯ ==========
 window.onload = () => {
     window.supabaseClient.auth.getUser().then(({ data: { user } }) => {
         if (user) {
             currentUser = user;
             navigateTo('dashboard');
+            initDashboard();
         }
     });
 };
-

@@ -13,6 +13,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
 </head>
 <body>
 
@@ -103,63 +104,159 @@
 
     </main>
 
-    <footer class="footer" id="footer">
-        <div class="container footer-content">
-            <div><h4>WriteUp</h4><p>Прокачка письменного английского.</p></div>
-            <div><h4>Контакты</h4><p>writeup@support.com</p></div>
-            <div><h4>Навигация</h4><a href="#" onclick="navigateTo('index')">Главная</a><br><a href="#" onclick="navigateTo('login')">Вход</a></div>
-            <div>
-    <h4>О платформе</h4>
-    <p style="font-size:13px;color:var(--text-muted);">Учебный проект для прокачки письменного английского. Создан с ❤️ для изучающих язык.</p>
-    <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">© 2026 WriteUp</p>
-</div>
+    <footer style="width:100%;background:#ede6dd;border-top:1px solid var(--border);padding:24px 0;">
+    <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;">
+        <div>
+            <div style="font-weight:700;font-size:16px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;">WriteUp</div>
+            <div style="font-size:12px;color:var(--text-muted);">Прокачка письменного английского.</div>
         </div>
-    </footer>
+        <div>
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--text);">Контакты</div>
+            <div style="font-size:12px;color:var(--text-muted);">writeup@support.com</div>
+        </div>
+        <div>
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--text);">Навигация</div>
+            <div style="font-size:12px;color:var(--text-muted);"><a href="#" onclick="navigateTo('index')" style="color:var(--text-muted);">Главная</a></div>
+            <div style="font-size:12px;color:var(--text-muted);"><a href="#" onclick="navigateTo('login')" style="color:var(--text-muted);">Вход</a></div>
+        </div>
+        <div>
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--text);">О платформе</div>
+            <div style="font-size:12px;color:var(--text-muted);max-width:200px;">Учебный проект для прокачки письменного английского.</div>
+        </div>
+    </div>
+    <div style="max-width:1200px;margin:16px auto 0;padding:0 24px;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:12px;">
+        &copy; 2026 WriteUp
+    </div>
+</footer>
 </div>
-
 <!-- ========== СТРАНИЦА ВХОДА ========== -->
 <div id="page-login" class="auth-page" style="display: none;">
-    <div class="auth-container">
-        <div class="auth-left"><h2>С возвращением!</h2><p>Продолжайте прокачивать письменный английский.</p></div>
-        <div class="auth-right"><h2>Вход</h2>
+    <div class="auth-container" style="border-radius:24px;overflow:hidden;">
+        <div class="auth-left" style="position:relative;overflow:hidden;">
+    <div style="font-size:56px;margin-bottom:16px;animation:floatIcon 3s ease-in-out infinite;">&#128640;</div>
+    <h2 style="font-size:34px;margin-bottom:8px;font-weight:800;letter-spacing:-0.5px;animation:fadeInUp 0.6s ease;">С возвращением!</h2>
+    <p style="font-size:18px;opacity:0.95;margin-bottom:4px;animation:fadeInUp 0.6s ease 0.1s both;">Продолжайте прокачивать письменный английский.</p>
+    <p style="font-size:14px;opacity:0.8;margin-top:12px;line-height:1.6;animation:fadeInUp 0.6s ease 0.2s both;">
+        Ваши тексты, статистика, словарь ошибок и прогресс ждут вас. Войдите и продолжите с того места, где остановились.
+    </p>
+    <!-- Декоративные круги -->
+    <div style="position:absolute;top:-40px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08);animation:floatCircle 5s ease-in-out infinite;"></div>
+    <div style="position:absolute;bottom:-30px;left:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.06);animation:floatCircle 4s ease-in-out infinite 1s;"></div>
+</div>
+        <div class="auth-right">
+            <h2 style="margin-bottom:8px;">Вход</h2>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:24px;">Войдите чтобы продолжить обучение.</p>
             <form id="login-form">
-                <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="your@email.com" required></div>
-                <div class="form-group"><label>Пароль</label><input type="password" id="login-password" placeholder="••••••" required></div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <div style="position:relative;">
+                        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);z-index:1;">&#9993;</span>
+                        <input type="email" id="login-email" placeholder="your@email.com" required style="padding-left:44px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <div style="position:relative;">
+                        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);z-index:1;">&#128274;</span>
+                        <input type="password" id="login-password" placeholder="••••••" required style="padding-left:44px;">
+                    </div>
+                </div>
                 <p id="login-error" class="error-message"></p>
-                <button type="submit" class="btn btn-primary" style="width:100%;">Войти</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:16px;font-size:16px;border-radius:14px;">
+                    Войти &#10132;
+                </button>
             </form>
-            <p style="text-align:center;margin-top:16px;">Нет аккаунта? <a href="#" onclick="navigateTo('register')">Регистрация</a></p>
+            <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--text-secondary);">
+                Нет аккаунта? <a href="#" onclick="navigateTo('register')" style="font-weight:600;">Регистрация</a>
+            </p>
+            <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);text-align:center;">
+                <a href="#" onclick="navigateTo('index')" style="font-size:13px;color:var(--text-muted);">&#8617; На главную</a>
+            </div>
         </div>
     </div>
 </div>
 <!-- ========== СТРАНИЦА РЕГИСТРАЦИИ ========== -->
+<!-- ========== СТРАНИЦА РЕГИСТРАЦИИ ========== -->
 <div id="page-register" class="auth-page" style="display: none;">
-    <div class="auth-container">
-        <div class="auth-left"><h2>Добро пожаловать!</h2><p>Создайте аккаунт и начните писать.</p></div>
-        <div class="auth-right"><h2>Регистрация</h2>
-            <form id="register-form">
-                <div class="form-row"><div class="form-group"><label>Имя *</label><input type="text" id="reg-first-name" required></div><div class="form-group"><label>Фамилия</label><input type="text" id="reg-last-name"></div></div>
-                <div class="form-group"><label>Email *</label><input type="email" id="reg-email" required></div>
-                <div class="form-group"><label>Пароль *</label><input type="password" id="reg-password" required minlength="6"></div>
-                <div class="form-row"><div class="form-group"><label>Пол</label><select id="reg-gender"><option value="">Не указан</option><option value="male">Мужской</option><option value="female">Женский</option></select></div><div class="form-group"><label>Год рождения</label><input type="number" id="reg-birth-year" placeholder="2000"></div></div>
-                <div class="form-group"><label>Уровень английского</label><select id="reg-english-level"><option value="">Выберите</option><option value="A1">A1 - Начинающий</option><option value="A2">A2 - Элементарный</option><option value="B1">B1 - Средний</option><option value="B2">B2 - Выше среднего</option><option value="C1">C1 - Продвинутый</option><option value="C2">C2 - Владение в совершенстве</option></select></div>
-                <div class="form-group"><label>Цель обучения</label><select id="reg-goal"><option value="business">Деловая переписка</option><option value="ielts_academic">IELTS Academic</option><option value="ielts_general">IELTS General</option><option value="social">Социальные сети</option><option value="creative">Творческое письмо</option><option value="daily">Повседневное общение</option></select></div>
-                <div class="checkbox-group"><input type="checkbox" id="reg-agreement" required><label>Принимаю <a href="#" id="show-agreement-btn">пользовательское соглашение</a></label></div>
-                <p id="reg-error" class="error-message"></p>
-                <button type="submit" class="btn btn-primary" style="width:100%;">Зарегистрироваться</button>
-            </form>
-            <p style="text-align:center;margin-top:16px;">Уже есть аккаунт? <a href="#" onclick="navigateTo('login')">Войти</a></p>
+    <div class="auth-container" style="max-width:1100px;border-radius:24px;overflow:hidden;">
+        <div class="auth-left" style="flex:1.1;padding:50px 40px;position:relative;overflow:hidden;">
+            <div style="font-size:52px;margin-bottom:16px;animation:floatIcon 3s ease-in-out infinite;">&#127891;</div>
+            <h2 style="font-size:32px;margin-bottom:8px;font-weight:800;letter-spacing:-0.5px;animation:fadeInUp 0.5s ease;">Добро пожаловать!</h2>
+            <p style="font-size:16px;opacity:0.95;margin-bottom:4px;animation:fadeInUp 0.5s ease 0.1s both;">Создайте аккаунт и начните писать.</p>
+            <p style="font-size:13px;opacity:0.8;margin-top:10px;line-height:1.6;animation:fadeInUp 0.5s ease 0.2s both;">
+                Присоединяйтесь к платформе WriteUp. Тренируйте письменный английский с умными чек-листами, персональным словарём ошибок и статистикой прогресса. Всё бесплатно.
+            </p>
+            <div style="margin-top:20px;display:flex;gap:10px;animation:fadeInUp 0.5s ease 0.3s both;">
+                <span style="background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:20px;font-size:12px;">1800+ тем</span>
+                <span style="background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:20px;font-size:12px;">20+ критериев</span>
+                <span style="background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:20px;font-size:12px;">6 целей</span>
+            </div>
+            <div style="position:absolute;top:-30px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.06);animation:floatCircle 5s ease-in-out infinite;"></div>
+            <div style="position:absolute;bottom:-20px;left:-30px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);animation:floatCircle 4s ease-in-out infinite 1s;"></div>
         </div>
+        <div class="auth-right" style="flex:1.2;padding:28px 36px;">
+    <h2 style="margin-bottom:2px;font-size:26px;">Регистрация</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Заполните данные ниже чтобы начать обучение.</p>
+    <form id="register-form">
+        <div class="form-row"><div class="form-group" style="margin-bottom:12px;"><label>Имя *</label><input type="text" id="reg-first-name" required style="padding:10px 14px;"></div><div class="form-group" style="margin-bottom:12px;"><label>Фамилия</label><input type="text" id="reg-last-name" style="padding:10px 14px;"></div></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>Email *</label><input type="email" id="reg-email" required style="padding:10px 14px;"></div>
+        <div class="form-row">
+            <div class="form-group" style="margin-bottom:12px;"><label>Пароль *</label><input type="password" id="reg-password" required minlength="6" style="padding:10px 14px;"></div>
+            <div class="form-group" style="margin-bottom:12px;"><label>Уровень</label><select id="reg-english-level" style="padding:10px 14px;"><option value="">Выберите</option><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option><option value="B2">B2</option><option value="C1">C1</option><option value="C2">C2</option></select></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group" style="margin-bottom:12px;"><label>Пол</label><select id="reg-gender" style="padding:10px 14px;"><option value="">Не указан</option><option value="male">Мужской</option><option value="female">Женский</option></select></div>
+            <div class="form-group" style="margin-bottom:12px;"><label>Год рождения</label><input type="number" id="reg-birth-year" placeholder="2000" style="padding:10px 14px;"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;"><label>Цель обучения</label><select id="reg-goal" style="padding:10px 14px;"><option value="business">Деловая переписка</option><option value="ielts_academic">IELTS Academic</option><option value="ielts_general">IELTS General</option><option value="social">Социальные сети</option><option value="creative">Творческое письмо</option><option value="daily">Повседневное общение</option></select></div>
+        <div class="checkbox-group" style="margin:10px 0;"><input type="checkbox" id="reg-agreement" required><label style="font-size:13px;">Принимаю <a href="#" id="show-agreement-btn">пользовательское соглашение</a></label></div>
+        <p id="reg-error" class="error-message" style="margin-bottom:8px;"></p>
+        <button type="submit" class="btn btn-primary" style="width:100%;padding:12px;font-size:14px;border-radius:12px;">Зарегистрироваться &#10132;</button>
+    </form>
+    <p style="text-align:center;margin-top:10px;font-size:13px;color:var(--text-secondary);">Уже есть аккаунт? <a href="#" onclick="navigateTo('login')" style="font-weight:600;">Войти</a></p>
+</div>
     </div>
 </div>
 
 <!-- Модальное окно соглашения -->
 <div id="agreement-modal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:600px;">
         <span class="modal-close" id="close-agreement-btn">×</span>
-        <h2>Пользовательское соглашение</h2>
-        <p>Ваши данные используются исключительно для целей обучения и улучшения качества работы платформы. Мы не передаем их третьим лицам. Продолжая использовать платформу, вы соглашаетесь на хранение и обработку ваших текстов и статистики.</p>
-        <button class="btn btn-primary" id="accept-agreement-btn">Принять</button>
+        <h2 style="margin-bottom:16px;">Пользовательское соглашение</h2>
+        <div style="max-height:50vh;overflow-y:auto;padding-right:8px;font-size:13px;line-height:1.7;color:var(--text-secondary);">
+            <p><strong>1. Общие положения</strong><br>
+            Настоящее Пользовательское соглашение регулирует отношения между платформой WriteUp (далее — «Платформа») и пользователем (далее — «Пользователь»), использующим сервисы Платформы для прокачки письменного английского языка.</p>
+            
+            <p><strong>2. Предмет соглашения</strong><br>
+            Платформа предоставляет Пользователю бесплатный доступ к тренажёру письма, библиотеке тем, системе чек-листов, тесту на определение уровня, личному словарю ошибок и статистике прогресса. Используя Платформу, Пользователь соглашается с условиями настоящего Соглашения.</p>
+            
+            <p><strong>3. Регистрация и аккаунт</strong><br>
+            Для доступа к полному функционалу Платформы Пользователь обязан пройти регистрацию, указав достоверные данные. Пользователь несёт ответственность за сохранность своего пароля и обязуется не передавать доступ к аккаунту третьим лицам.</p>
+            
+            <p><strong>4. Сбор и обработка данных</strong><br>
+            Платформа собирает и обрабатывает следующие данные Пользователя: имя, фамилию, email, пол, год рождения, заявленный уровень английского языка, цель обучения, тексты эссе и результаты их анализа. Все данные используются исключительно для обеспечения работы Платформы и улучшения качества обучения.</p>
+            
+            <p><strong>5. Хранение данных</strong><br>
+            Данные Пользователя хранятся на защищённых серверах Supabase. Платформа принимает разумные меры для защиты данных от несанкционированного доступа, раскрытия, изменения или уничтожения.</p>
+            
+            <p><strong>6. Конфиденциальность</strong><br>
+            Платформа обязуется не передавать персональные данные Пользователя третьим лицам без его явного согласия, за исключением случаев, предусмотренных законодательством.</p>
+            
+            <p><strong>7. Интеллектуальная собственность</strong><br>
+            Все тексты, написанные Пользователем на Платформе, остаются его интеллектуальной собственностью. Платформа не присваивает авторские права на пользовательский контент.</p>
+            
+            <p><strong>8. Ограничение ответственности</strong><br>
+            Платформа предоставляется «как есть» (as is). Администрация не гарантирует бесперебойную работу сервиса и не несёт ответственности за возможные ошибки, вызванные техническими сбоями.</p>
+            
+            <p><strong>9. Изменение условий</strong><br>
+            Платформа оставляет за собой право вносить изменения в настоящее Соглашение. Продолжая использовать Платформу после внесения изменений, Пользователь выражает согласие с новой редакцией Соглашения.</p>
+            
+            <p><strong>10. Контакты</strong><br>
+            По всем вопросам, связанным с настоящим Соглашением, Пользователь может обратиться по адресу: writeup@support.com.</p>
+            
+            <p style="margin-top:16px;font-weight:600;color:var(--text);">Регистрируясь на Платформе, вы подтверждаете, что ознакомились с условиями настоящего Соглашения и принимаете их в полном объёме.</p>
+        </div>
+        <button class="btn btn-primary" id="accept-agreement-btn" style="margin-top:16px;width:100%;">Принимаю</button>
     </div>
 </div>
 
@@ -180,60 +277,112 @@
     </header>
 
     <!-- Тренажёр -->
+    <!-- Тренажёр -->
     <div id="section-trainer" class="dashboard-section active-section">
-        <div class="grid grid-2">
-            <div class="writing-panel">
-                <div class="goal-selector">
-                    <select id="goal-select">
-                        <option value="business">💼 Деловая переписка</option>
-                        <option value="ielts_academic">🎓 IELTS Academic</option>
-                        <option value="ielts_general">📝 IELTS General</option>
-                        <option value="social">📱 Социальные сети</option>
-                        <option value="creative">✨ Творческое письмо</option>
-                        <option value="daily">🗣️ Повседневное общение</option>
+        <div style="display:flex;gap:20px;align-items:stretch;">
+            <!-- Левая панель -->
+            <div style="flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <select id="goal-select" style="flex:1;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-size:14px;font-weight:500;color:var(--text);">
+                        <option value="business">Деловая переписка</option>
+                        <option value="ielts_academic">IELTS Academic</option>
+                        <option value="ielts_general">IELTS General</option>
+                        <option value="social">Социальные сети</option>
+                        <option value="creative">Творческое письмо</option>
+                        <option value="daily">Повседневное общение</option>
                     </select>
-                    <button id="generate-topic-btn" class="btn btn-secondary">🎲 Сгенерировать тему</button>
+                   <button id="generate-topic-btn" class="btn btn-primary btn-sm">Сгенерировать тему</button>
                 </div>
-                <div class="topic-box">💡 <strong>Тема:</strong> <span id="topic-text">Нажмите "Сгенерировать", чтобы начать</span></div>
-                <p style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">✍️ Пишите на английском. Минимум 50 слов для полного анализа.</p>
-                <textarea id="essay-input" placeholder="Начните писать здесь..." rows="14"></textarea>
-                <div class="action-buttons">
-                    <button id="sprint-btn" class="btn btn-secondary">⏱ Спринт 5 мин</button>
-                    <span id="word-count" class="word-counter">0 слов</span>
-                    <button id="save-text-btn" class="btn btn-primary">💾 Сохранить и проанализировать</button>
+                <div style="background:var(--primary-light);border-left:3px solid var(--primary);padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;">
+                    <span style="color:var(--text-muted);">Тема: </span><span id="topic-text">Нажмите "Сгенерировать", чтобы начать</span>
                 </div>
-                <div id="timer-display" class="timer"></div>
+                <textarea id="essay-input" placeholder="Начните писать ваш текст на английском..." style="flex:1;min-height:220px;padding:16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;line-height:1.7;resize:none;background:var(--bg);color:var(--text);font-family:inherit;"></textarea>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <button id="sprint-btn" style="padding:10px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text);">Спринт 5 мин</button>
+                    <span id="word-count" style="margin-left:auto;font-size:13px;color:var(--text-muted);font-weight:500;">0 слов</span>
+                    <button id="save-text-btn" class="btn btn-primary">Сохранить и проанализировать</button>
+                </div>
+                <div id="timer-display" style="font-size:28px;font-weight:700;text-align:center;color:var(--primary);"></div>
             </div>
-            <div class="feedback-panel">
-                <h3>📊 Статистика текста</h3>
-                <div id="text-stats" class="placeholder-box">Напишите и сохраните текст для анализа.</div>
-                <div style="margin-top:20px;">
-                    <h4>📋 Быстрый чек-лист</h4>
-                    <p class="hint">Нажмите на пункт, чтобы отметить. <br>Система проверит автоматически после сохранения.</p>
-                                        <ul id="quick-checklist" class="checklist">
-    <li data-criterion="topic_relevance">Соответствие теме</li>
-    <li data-criterion="introduction">Введение</li>
-    <li data-criterion="conclusion">Заключение</li>
-    <li data-criterion="linking_words">Слова-связки</li>
-    <li data-criterion="grammar_range">Грамматический диапазон</li>
-    <li data-criterion="vocabulary">Лексика и словарный запас</li>
-    <li data-criterion="structure">Структура и логика</li>
-    <li data-criterion="style">Стиль и оформление</li>
-</ul>
-                    </ul>
+                       <!-- Правая панель -->
+            <div style="width:360px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:20px;">
+                <!-- Статистика -->
+                <div>
+                    <h3 style="font-size:18px;font-weight:800;letter-spacing:-0.3px;margin-bottom:4px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Статистика текста</h3>
+                    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Обновится после сохранения</p>
+                    <div id="text-stats" style="background:linear-gradient(135deg, var(--bg) 0%, var(--bg-card) 100%);border-radius:12px;padding:24px 16px;text-align:center;border:2px dashed var(--border);">
+                        <div style="font-size:36px;margin-bottom:8px;opacity:0.5;">&#9998;</div>
+                        <p style="font-size:13px;color:var(--text-muted);margin:0;">Напишите и сохраните текст<br>для анализа</p>
+                    </div>
                 </div>
+                
+                <!-- Разделитель -->
+                <div style="height:1px;background:var(--border);"></div>
+                
+                <!-- Чек-лист -->
+<div>
+    <h3 style="font-size:18px;font-weight:800;letter-spacing:-0.3px;margin-bottom:4px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Быстрый чек-лист</h3>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Автоматически после сохранения</p>
+    <ul id="quick-checklist" class="checklist" style="font-size:12px;">
+        <li data-criterion="topic_relevance">Соответствие теме</li>
+        <li data-criterion="introduction">Введение</li>
+        <li data-criterion="conclusion">Заключение</li>
+        <li data-criterion="linking_words">Слова-связки</li>
+        <li data-criterion="grammar_range">Грамматический диапазон</li>
+        <li data-criterion="style">Стиль</li>
+    </ul>
+                    </div>
             </div>
         </div>
-    
     </div>
-
-
-
+       <!-- история -->
+    <div id="section-history" class="dashboard-section">
+        <h2 class="section-title">Ваша история</h2>
+        <p class="section-subtitle">Все ваши тексты с анализом</p>
+        <div class="history-wrapper">
+            <div id="history-list-panel">
+                <div id="history-full-list"><p class="placeholder-box">Загрузка...</p></div>
+            </div>
+            <div id="history-detail-panel"></div>
+        </div>
+    </div>
     <!-- Словарь ошибок -->
-    <div id="section-dictionary" class="dashboard-section"><h2 class="section-title">📖 Ваш словарь ошибок</h2><p class="section-subtitle">Ошибки, которые встречаются у вас чаще всего.</p><div id="personal-dictionary" class="grid grid-3"><p class="placeholder-box">Накопите тексты для анализа.</p></div></div>
+    <div id="section-dictionary" class="dashboard-section">
+    <h2 class="section-title">Ваш словарь ошибок</h2>
+    <p class="section-subtitle">Ошибки собираются автоматически из всех ваших текстов</p>
+    <div id="personal-dictionary" class="grid grid-3"></div>
+</div>
 
     <!-- Тест на уровень -->
-    <div id="section-levels" class="dashboard-section"><h2 class="section-title">🎯 Тест на определение уровня</h2><div id="level-test-container" class="card"><p>Готовы начать? Тест из 50 вопросов определит ваш уровень точнее.</p><button id="start-test-btn" class="btn btn-primary">Начать тест</button></div></div>
+       <!-- Тест на уровень -->
+    <div id="section-levels" class="dashboard-section">
+        <h2 class="section-title">Тест на определение уровня</h2>
+        <p class="section-subtitle">50 вопросов для точного определения вашего уровня (A1–C2)</p>
+        <div id="level-test-container" class="card" style="padding:32px;max-width:700px;margin:0 auto;">
+            <div style="text-align:center;padding:30px 0;" id="test-start-screen">
+                <div style="font-size:60px;margin-bottom:16px;animation:floatIcon 3s ease-in-out infinite;">&#127919;</div>
+                <h3 style="margin-bottom:8px;">Готовы проверить свой уровень?</h3>
+                <p style="color:var(--text-muted);margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">
+                    Тест охватывает грамматику, лексику и понимание конструкций. От Elementary до Proficiency.
+                </p>
+                <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap;">
+                    <span style="background:var(--primary-light);color:var(--primary);padding:6px 16px;border-radius:20px;font-size:13px;">50 вопросов</span>
+                    <span style="background:var(--primary-light);color:var(--primary);padding:6px 16px;border-radius:20px;font-size:13px;">A1–C2</span>
+                    <span style="background:var(--primary-light);color:var(--primary);padding:6px 16px;border-radius:20px;font-size:13px;">~10 минут</span>
+                </div>
+                <button id="start-test-btn" class="btn btn-primary btn-lg">Начать тест &#10132;</button>
+            </div>
+            <div id="test-area" style="display:none;">
+                <div id="question-text" style="font-size:18px;margin-bottom:24px;font-weight:600;"></div>
+                <div id="options-container"></div>
+                <div style="margin-top:24px;display:flex;justify-content:space-between;align-items:center;">
+                    <span id="progress-indicator" style="font-size:13px;color:var(--text-muted);">Вопрос 1/50</span>
+                    <button id="next-question-btn" class="btn btn-primary" disabled>Далее &#10132;</button>
+                </div>
+            </div>
+            <div id="test-result" style="display:none;text-align:center;padding:20px 0;"></div>
+        </div>
+    </div>
 
     <!-- Профиль -->
     <div id="section-profile" class="dashboard-section">
@@ -244,6 +393,7 @@
             <button class="btn btn-outline btn-sm" onclick="alert('Ссылка скопирована: ' + window.location.href)" style="margin-top:12px;">🔗 Поделиться профилем</button>
         </div>
     </div>
+    
 </div>
 
 <script src="script.js"></script>
